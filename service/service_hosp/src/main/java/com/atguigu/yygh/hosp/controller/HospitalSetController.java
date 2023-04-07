@@ -90,19 +90,43 @@ public class HospitalSetController {
 
     @ApiOperation("根据id查询")
     @GetMapping("/{id}")
-    public Result getById(@ApiParam("医院id") @PathVariable Long id){
+    public Result getById(@ApiParam("医院id") @PathVariable Long id) {
         HospitalSet hospitalSet = hospitalSetService.getById(id);
-        return Result.ok().data("hospitalSet",hospitalSet);
+        return Result.ok().data("hospitalSet", hospitalSet);
     }
 
     @ApiOperation("根据id修改")
     @PutMapping("/updateById")
-    public Result updateById(@RequestBody HospitalSet hospitalSet){
+    public Result updateById(@RequestBody HospitalSet hospitalSet) {
 
         boolean update = hospitalSetService.updateById(hospitalSet);
         if (update)
             return Result.ok();
         return Result.error();
     }
+
+    @ApiOperation("根据id批量删除医院")
+    @DeleteMapping("/batchDeleteByIds")
+    public Result batchDeleteByIds(@ApiParam("需要删除的医院id列表") @RequestBody List<Long> ids) {
+        boolean remove = hospitalSetService.removeByIds(ids);
+        if (remove)
+            return Result.ok();
+        return Result.error();
+    }
+
+    @ApiOperation("医院上市和下市")
+    @PutMapping("/updateStatus/{id}/{status}")
+    public Result updateStatus(@ApiParam("医院id") @PathVariable Long id,
+                               @ApiParam("医院状态： 0未上市 1上市") @PathVariable Integer status) {
+        HospitalSet hospitalSet = new HospitalSet();
+        hospitalSet.setId(id);
+        hospitalSet.setStatus(status);
+
+        boolean update = hospitalSetService.updateById(hospitalSet);
+        if (update)
+            return Result.ok();
+        return Result.error();
+    }
+
 }
 
