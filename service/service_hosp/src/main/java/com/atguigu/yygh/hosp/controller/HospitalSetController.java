@@ -1,6 +1,7 @@
 package com.atguigu.yygh.hosp.controller;
 
 
+import com.atguigu.yygh.common.exception.LtZeroException;
 import com.atguigu.yygh.common.utils.MD5;
 import com.atguigu.yygh.common.utils.Result;
 import com.atguigu.yygh.hosp.service.HospitalSetService;
@@ -91,6 +92,9 @@ public class HospitalSetController {
     @ApiOperation("根据id查询")
     @GetMapping("/{id}")
     public Result getById(@ApiParam("医院id") @PathVariable Long id) {
+        if (id < 0) {
+            throw new LtZeroException(9999, "id不能小于0");
+        }
         HospitalSet hospitalSet = hospitalSetService.getById(id);
         return Result.ok().data("hospitalSet", hospitalSet);
     }
