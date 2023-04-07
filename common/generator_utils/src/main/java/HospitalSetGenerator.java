@@ -1,6 +1,6 @@
 import com.baomidou.mybatisplus.generator.FastAutoGenerator;
 
-public class Generator {
+public class HospitalSetGenerator {
 
     public static void main(String[] args) {
         //创建一个代码生成器
