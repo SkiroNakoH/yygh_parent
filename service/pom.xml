@@ -27,6 +27,9 @@
             <artifactId>service_utils</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+
+
+<!--    mybatis_plus 版本依赖冲突     -->
 <!--        <dependency>-->
 <!--            <groupId>com.atguigu</groupId>-->
 <!--            <artifactId>generator_utils</artifactId>-->
