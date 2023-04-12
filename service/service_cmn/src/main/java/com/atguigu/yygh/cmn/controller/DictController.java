@@ -57,13 +57,13 @@ public class DictController {
 
     /**
      * 将前端上传的Excel表下载解析，更新到数据库中
-     * @param srcFile 上传的Excel文件
+     * @param file 上传的Excel文件
      * @return 上传成功，响应20000状态码
      */
     @ApiOperation("上传数据字典Excel表")
     @PostMapping("/upLoad")
-    public Result upLoad(MultipartFile srcFile) throws IOException {
-        dictService.upLoad(srcFile);
+    public Result upLoad(MultipartFile file) throws IOException {
+        dictService.upLoad(file);
 
         return Result.ok();
     }
