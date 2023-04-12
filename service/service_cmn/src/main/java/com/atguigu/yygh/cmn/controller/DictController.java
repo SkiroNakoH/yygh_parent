@@ -9,7 +9,10 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -40,5 +43,29 @@ public class DictController {
         return Result.ok().data("dictList",dictList);
     }
 
+    /**
+     * 读取数据库，上传Excel,让前端下载Excel
+     * @param response 响应，数据载体
+     * @throws IOException 文件上传IO异常
+     */
+    @ApiOperation("下载数据字典Excel表")
+    @GetMapping("/downLoad")
+    public void downLoad(HttpServletResponse response) throws IOException {
+        dictService.downLoad(response);
+
+    }
+
+    /**
+     * 将前端上传的Excel表下载解析，更新到数据库中
+     * @param srcFile 上传的Excel文件
+     * @return 上传成功，响应20000状态码
+     */
+    @ApiOperation("上传数据字典Excel表")
+    @PostMapping("/upLoad")
+    public Result upLoad(MultipartFile srcFile) throws IOException {
+        dictService.upLoad(srcFile);
+
+        return Result.ok();
+    }
 }
 
