@@ -9,6 +9,7 @@ import com.atguigu.yygh.vo.cmn.DictEeVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +30,17 @@ import java.util.List;
 @Service
 public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements DictService {
 
+
+    /**
+     *  @Cacheable(value = "dict",key = "'findListByParentId'+#parentId")
+     *  第一次去db查询，携带数据返回，并将查询的值放入缓存中；
+     *  第二次即以上查询，先去缓存区中查询是否有该缓存，如果有，直接返回数据，如果没有，重复操作一
+     *
+     * 缓存命名方式:  value:key   =>  例如: dict:findListByParentId:1
+     *
+     * #parentId 展开孩子时，需要使用当前id作为父id,去数据库查询。所以缓存命名值不能写死
+     */
+    @Cacheable(value = "dict",key = "'findListByParentId'+#parentId")
     @Override
     public List<Dict> findListByParentId(Long parentId) {
         //查询
