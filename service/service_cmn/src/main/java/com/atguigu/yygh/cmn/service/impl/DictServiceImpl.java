@@ -9,6 +9,7 @@ import com.atguigu.yygh.vo.cmn.DictEeVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -94,6 +95,8 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
                 .doWrite(dictEeVoList);
     }
 
+    //db发生更改，清空redis中所以以dict开头的缓存内容
+    @CacheEvict(value = "dict",allEntries = true)
     @Override
     public void upLoad(MultipartFile srcFile) throws IOException {
         EasyExcel.read(srcFile.getInputStream(), DictEeVo.class, new UploadDictEeVoListener(baseMapper)).sheet().doRead();
