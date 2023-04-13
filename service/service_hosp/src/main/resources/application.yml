@@ -14,8 +14,12 @@ spring:
   jackson: #返回json的全局时间格式
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
+  data:
+    mongodb:
+      uri: mongodb://192.168.112.127:27017/test
 
 #设置指定路径的日志级别
 logging:
   level:
     com.atguigu.yygh.hosp.mapper: DEBUG
+    org.springframework.data.mongodb.core: DEBUG
