@@ -18,9 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.regex.Pattern;
 
-@Api(tags = "mongodb测试类")
+@Api(tags = "MongodbTemplate测试")
 @RestController
-@RequestMapping("/admin/mongoTest")
+@RequestMapping("/admin/mongo/mongoTemplate")
 public class MongoTestController {
 
     @Autowired
@@ -57,7 +57,7 @@ public class MongoTestController {
     }
 
 
-    @ApiOperation("条件查询")
+    @ApiOperation("条件查询:根据年龄查询")
     @GetMapping("/findByAge")
     public Result findByAge(Integer age){
         Query query = new Query(Criteria.where("age").is(age));
@@ -67,7 +67,7 @@ public class MongoTestController {
         return Result.ok().data("list",userList);
     }
 
-    @ApiOperation("模糊查询")
+    @ApiOperation("模糊查询:根据姓名查询")
     @GetMapping("findLikeByName")
     public Result findLikeByName(String name){
         String regex = String.format("%s%s%s", "^.*", name, ".*$");     //^.*三.*$
