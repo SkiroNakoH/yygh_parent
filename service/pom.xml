@@ -89,11 +89,7 @@
             <version>2.6.0</version>
         </dependency>
 
-<!--  mongodb -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-mongodb</artifactId>
-        </dependency>
+
         <!--        &lt;!&ndash; 服务调用feign &ndash;&gt;-->
         <!--        <dependency>-->
         <!--            <groupId>org.springframework.cloud</groupId>-->

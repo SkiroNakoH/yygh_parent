@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+@Deprecated
 @Api(tags = "MongoRepository测试")
 @RestController
-@RequestMapping("/admin/mongo/repository")
+//@RequestMapping("/admin/mongo/repository")
+@RequestMapping("/mongo/repository")
 public class MongoRepositoryTest {
 
     @Autowired

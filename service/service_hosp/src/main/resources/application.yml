@@ -16,7 +16,7 @@ spring:
     time-zone: GMT+8
   data:
     mongodb:
-      uri: mongodb://192.168.112.127:27017/test
+      uri: mongodb://192.168.112.127:27017/yygh
 
 #设置指定路径的日志级别
 logging:

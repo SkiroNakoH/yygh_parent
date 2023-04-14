@@ -18,9 +18,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.regex.Pattern;
 
+@Deprecated
 @Api(tags = "MongodbTemplate测试")
 @RestController
-@RequestMapping("/admin/mongo/mongoTemplate")
+//@RequestMapping("/admin/mongo/mongoTemplate")
+@RequestMapping("/mongo/mongoTemplate")
 public class MongoTestController {
 
     @Autowired

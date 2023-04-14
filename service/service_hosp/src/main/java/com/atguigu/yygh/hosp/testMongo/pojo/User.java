@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 
+@Deprecated
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
