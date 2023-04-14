@@ -10,6 +10,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -47,6 +48,7 @@ public class Schedule extends BaseMongoEntity {
 
 	@ApiModelProperty(value = "排班日期")
 	@JsonFormat(pattern = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date workDate;
 
 	@ApiModelProperty(value = "排班时间（0：上午 1：下午）")

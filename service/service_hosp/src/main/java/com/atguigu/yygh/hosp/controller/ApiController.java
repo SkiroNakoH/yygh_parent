@@ -6,9 +6,11 @@ import com.atguigu.yygh.hosp.result.Result;
 import com.atguigu.yygh.hosp.service.DepartmentService;
 import com.atguigu.yygh.hosp.service.HospitalService;
 import com.atguigu.yygh.hosp.service.HospitalSetService;
+import com.atguigu.yygh.hosp.service.ScheduleService;
 import com.atguigu.yygh.model.hosp.Department;
 import com.atguigu.yygh.model.hosp.Hospital;
 import com.atguigu.yygh.model.hosp.HospitalSet;
+import com.atguigu.yygh.model.hosp.Schedule;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,6 +36,9 @@ public class ApiController {
 
     @Autowired
     private DepartmentService departmentService;
+
+    @Autowired
+    private ScheduleService scheduleService;
 
     //mysql db
     @Autowired
@@ -103,10 +108,13 @@ public class ApiController {
 
     @ApiOperation("查询科室")
     @PostMapping("/department/list")
-    public Result findPage(HttpServletRequest request){
-        String hosCode = request.getParameterMap().get("hoscode")[0];
-        Integer page = Integer.valueOf(request.getParameterMap().get("page")[0]);
-        Integer pageSize = Integer.valueOf(request.getParameterMap().get("limit")[0]);
+    public Result findDepartmentPage(HttpServletRequest request){
+        Map<String, String[]> parameterMap = request.getParameterMap();
+
+        //取值
+        String hosCode = parameterMap.get("hoscode")[0];
+        Integer page = Integer.valueOf(parameterMap.get("page")[0]);
+        Integer pageSize = Integer.valueOf(parameterMap.get("limit")[0]);
         //非空校验
         if (StringUtils.isEmpty(hosCode)) {
             return Result.fail().message("hoscode不能为空");
@@ -117,7 +125,7 @@ public class ApiController {
 
     @ApiOperation("删除科室")
     @PostMapping("/department/remove")
-    public Result remove(HttpServletRequest request){
+    public Result removeDepartment(HttpServletRequest request){
         String hoscode = request.getParameterMap().get("hoscode")[0];
         String depcode = request.getParameterMap().get("depcode")[0];
 
@@ -126,6 +134,50 @@ public class ApiController {
         }
 
         departmentService.remove(hoscode,depcode);
+        return Result.ok();
+    }
+
+    //TODO String 2 Date
+    @ApiOperation("上传排班")
+    @PostMapping("/saveSchedule")
+    public Result saveSchedule(Schedule schedule){
+        scheduleService.save(schedule);
+        return Result.ok();
+    }
+
+    @ApiOperation("查询排班")
+    @PostMapping("/schedule/list")
+    public Result findSchedulePage(HttpServletRequest request){
+
+        Map<String, String[]> parameterMap = request.getParameterMap();
+        //取值
+        String hoscode = parameterMap.get("hoscode")[0];
+        Integer page = Integer.valueOf(parameterMap.get("page")[0]);
+        Integer pageSize = Integer.valueOf(parameterMap.get("limit")[0]);
+
+        //非空校验
+        if (StringUtils.isEmpty(hoscode)) {
+            return Result.fail().message("医院编码不能为空");
+        }
+
+        Page<Schedule> schedulePage = scheduleService.findPage(hoscode,page,pageSize);
+        return Result.ok(schedulePage);
+    }
+
+    @ApiOperation("删除排班")
+    @PostMapping("/schedule/remove")
+    public Result removeSchedule(HttpServletRequest request){
+        Map<String, String[]> parameterMap = request.getParameterMap();
+
+        String hoscode = parameterMap.get("hoscode")[0];
+        String hosScheduleId = parameterMap.get("hosScheduleId")[0];
+
+        //非空校验
+        if (StringUtils.isEmpty(hoscode) || StringUtils.isEmpty(hosScheduleId)) {
+            return Result.fail().message("医院编码或排班id有误");
+        }
+
+        scheduleService.remove(hoscode,hosScheduleId);
         return Result.ok();
     }
 }

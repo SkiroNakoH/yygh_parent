@@ -42,27 +42,25 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     //分页查询科室
     @Override
-    public   Page<Department> findPage(String hosCode, Integer page, Integer pageSize) {
+    public Page<Department> findPage(String hosCode, Integer page, Integer pageSize) {
         Department department = new Department();
         department.setHoscode(hosCode);
         //逻辑未删除
         department.setIsDeleted(0);
 
-        Page<Department> departmentPage = departmentRepository.findAll(Example.of(department),
-                PageRequest.of(page - 1, pageSize));
-
-        return departmentPage;
+        return departmentRepository.findAll(Example.of(department), PageRequest.of(page - 1, pageSize));
     }
 
-    //删除科室
+    //根据hoscode和depcode删除科室
     @Override
     public void remove(String hoscode, String depcode) {
-        Department department = departmentRepository.findByHoscodeAndDepcode(hoscode,depcode);
+        Department department = departmentRepository.findByHoscodeAndDepcode(hoscode, depcode);
 
-        //逻辑删除
-        department.setIsDeleted(1);
-        departmentRepository.save(department);
+        if (department != null && department.getIsDeleted() == 0) {
+            //逻辑删除
+            department.setIsDeleted(1);
+            departmentRepository.save(department);
+        }
     }
-
 
 }
