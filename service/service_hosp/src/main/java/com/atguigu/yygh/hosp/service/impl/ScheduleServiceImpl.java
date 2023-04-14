@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -49,8 +50,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         //查询逻辑未删除
         schedule.setIsDeleted(0);
 
-        Page<Schedule> schedulePage = scheduleRepository.findAll(Example.of(schedule), PageRequest.of(page - 1, pageSize));
-        return schedulePage;
+        return scheduleRepository.findAll(Example.of(schedule), PageRequest.of(page - 1, pageSize, Sort.by(Sort.Order.desc("workDate"))));
     }
 
     //根据hoscode和hosScheduleId逻辑删除
