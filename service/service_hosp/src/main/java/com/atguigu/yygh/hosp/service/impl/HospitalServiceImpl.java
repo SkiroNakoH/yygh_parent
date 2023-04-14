@@ -21,14 +21,14 @@ public class HospitalServiceImpl implements HospitalService {
     @Override
     public void saveHospital(Hospital hospital) {
         //根据hoscode查找hospital
-        Hospital targetHospital = hospitalRepository.findByHoscode(hospital.getHoscode());
+        Hospital hospitalDB = hospitalRepository.findByHoscode(hospital.getHoscode());
         //判断是否存在
-        if (null != targetHospital) {
+        if (null != hospitalDB) {
             //更新医院数据
-            hospital.setStatus(targetHospital.getStatus());
-            hospital.setCreateTime(targetHospital.getCreateTime());
-            hospital.setIsDeleted(0);
-            hospital.setId(targetHospital.getId()); //根据id更新
+            hospital.setId(hospitalDB.getId()); //根据id更新
+            hospital.setStatus(hospitalDB.getStatus());
+            hospital.setCreateTime(hospitalDB.getCreateTime());
+            hospital.setIsDeleted(hospitalDB.getIsDeleted());
         } else {
             //新增医院
             //0：未上线 1：已上线

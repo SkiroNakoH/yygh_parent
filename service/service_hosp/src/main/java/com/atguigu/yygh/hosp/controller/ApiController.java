@@ -3,20 +3,24 @@ package com.atguigu.yygh.hosp.controller;
 import com.atguigu.yygh.common.utils.MD5;
 
 import com.atguigu.yygh.hosp.result.Result;
+import com.atguigu.yygh.hosp.service.DepartmentService;
 import com.atguigu.yygh.hosp.service.HospitalService;
 import com.atguigu.yygh.hosp.service.HospitalSetService;
+import com.atguigu.yygh.model.hosp.Department;
 import com.atguigu.yygh.model.hosp.Hospital;
 import com.atguigu.yygh.model.hosp.HospitalSet;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Api(tags = "医院管理API接口")
@@ -27,6 +31,9 @@ public class ApiController {
     //mongo db
     @Autowired
     private HospitalService hospitalService;
+
+    @Autowired
+    private DepartmentService departmentService;
 
     //mysql db
     @Autowired
@@ -85,5 +92,40 @@ public class ApiController {
 
         Hospital hospital = hospitalService.getByHoscode(hosCode);
         return Result.ok(hospital);
+    }
+
+    @ApiOperation("上传科室")
+    @PostMapping("/saveDepartment")
+    public Result saveDepartment(Department department){
+        departmentService.save(department);
+        return Result.ok();
+    }
+
+    @ApiOperation("查询科室")
+    @PostMapping("/department/list")
+    public Result findPage(HttpServletRequest request){
+        String hosCode = request.getParameterMap().get("hoscode")[0];
+        Integer page = Integer.valueOf(request.getParameterMap().get("page")[0]);
+        Integer pageSize = Integer.valueOf(request.getParameterMap().get("limit")[0]);
+        //非空校验
+        if (StringUtils.isEmpty(hosCode)) {
+            return Result.fail().message("hoscode不能为空");
+        }
+        Page<Department> departmentPage =  departmentService.findPage(hosCode,page,pageSize);
+        return Result.ok(departmentPage);
+    }
+
+    @ApiOperation("删除科室")
+    @PostMapping("/department/remove")
+    public Result remove(HttpServletRequest request){
+        String hoscode = request.getParameterMap().get("hoscode")[0];
+        String depcode = request.getParameterMap().get("depcode")[0];
+
+        if (StringUtils.isEmpty(hoscode) || StringUtils.isEmpty(depcode)) {
+            return Result.fail().message("医院和科室信息有误");
+        }
+
+        departmentService.remove(hoscode,depcode);
+        return Result.ok();
     }
 }
