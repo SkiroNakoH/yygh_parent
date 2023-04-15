@@ -1,7 +1,7 @@
 package com.atguigu.yygh.hosp.controller;
 
 
-import com.atguigu.yygh.common.exception.LtZeroException;
+import com.atguigu.yygh.common.exception.YYGHException;
 import com.atguigu.yygh.common.utils.MD5;
 import com.atguigu.yygh.common.utils.Result;
 import com.atguigu.yygh.hosp.service.HospitalSetService;
@@ -9,7 +9,6 @@ import com.atguigu.yygh.model.hosp.HospitalSet;
 import com.atguigu.yygh.vo.hosp.HospitalSetQueryVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
-import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -94,7 +93,7 @@ public class HospitalSetController {
     @GetMapping("/{id}")
     public Result getById(@ApiParam("医院id") @PathVariable Long id) {
         if (id < 0) {
-            throw new LtZeroException(9999, "id不能小于0");
+            throw new YYGHException(9999, "id不能小于0");
         }
         HospitalSet hospitalSet = hospitalSetService.getById(id);
         return Result.ok().data("hospitalSet", hospitalSet);

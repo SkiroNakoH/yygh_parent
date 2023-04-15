@@ -30,7 +30,6 @@ import java.util.Map;
 @RequestMapping("/api/hosp")
 public class ApiController {
 
-    //mongo db
     @Autowired
     private HospitalService hospitalService;
 
@@ -39,43 +38,6 @@ public class ApiController {
 
     @Autowired
     private ScheduleService scheduleService;
-
-    //mysql db
-    @Autowired
-    private HospitalSetService hospitalSetService;
-
-    //带sign校验的上传医院接口
-    /*@ApiOperation(value = "上传医院")
-    @PostMapping("/saveHospital")
-    public Result saveHospital(HttpServletRequest request) {
-
-        Map<String, Object> resultMap = new HashMap<>();
-        Map<String, String[]> parameterMap = request.getParameterMap();
-        for (Map.Entry<String, String[]> param : parameterMap.entrySet()) {
-            resultMap.put(param.getKey(), param.getValue()[0]);
-        }
-
-        //根据hoscode获取密钥，校验密钥
-        String hoscode = (String) resultMap.get("hoscode");
-        //1.对hoscode进行非空校验
-        if (StringUtils.isEmpty(hoscode)) {
-            return Result.error().message("医院编码不能为空");
-        }
-        //2.  根据医院编码，查询密钥
-        String signKey = hospitalSetService.getSignKeyByHosCode(hoscode);
-        //3. 密钥加密
-        String signKeyMD5 = MD5.encrypt(signKey);
-
-        //4.比对医院前端传入的signkey
-        String sign = (String) resultMap.get("sign");
-        if (StringUtils.isEmpty(sign) || !sign.equals(signKeyMD5)) {
-            return Result.error().message("医院密钥有误");
-        }
-
-        //上传医院
-        hospitalService.save(resultMap);
-        return Result.ok();
-    }*/
 
     @ApiOperation(value = "上传医院")
     @PostMapping("/saveHospital")
@@ -89,7 +51,7 @@ public class ApiController {
     @PostMapping("/hospital/show")
     public Result getByHoscode(HttpServletRequest request) {
 
-        String hosCode = request.getParameterMap().get("hoscode")[0];
+        String hosCode = request.getParameter("hoscode");
         //非空校验
         if (StringUtils.isEmpty(hosCode)) {
             return Result.fail().message("hoscode不能为空");
@@ -109,12 +71,9 @@ public class ApiController {
     @ApiOperation("查询科室")
     @PostMapping("/department/list")
     public Result findDepartmentPage(HttpServletRequest request){
-        Map<String, String[]> parameterMap = request.getParameterMap();
-
-        //取值
-        String hosCode = parameterMap.get("hoscode")[0];
-        Integer page = Integer.valueOf(parameterMap.get("page")[0]);
-        Integer pageSize = Integer.valueOf(parameterMap.get("limit")[0]);
+        String hosCode = request.getParameter("hoscode");
+        Integer page = Integer.valueOf(request.getParameter("page"));
+        Integer pageSize = Integer.valueOf(request.getParameter("limit"));
         //非空校验
         if (StringUtils.isEmpty(hosCode)) {
             return Result.fail().message("hoscode不能为空");
@@ -126,8 +85,8 @@ public class ApiController {
     @ApiOperation("删除科室")
     @PostMapping("/department/remove")
     public Result removeDepartment(HttpServletRequest request){
-        String hoscode = request.getParameterMap().get("hoscode")[0];
-        String depcode = request.getParameterMap().get("depcode")[0];
+        String hoscode = request.getParameter("hoscode");
+        String depcode = request.getParameter("depcode");
 
         if (StringUtils.isEmpty(hoscode) || StringUtils.isEmpty(depcode)) {
             return Result.fail().message("医院和科室信息有误");
@@ -148,12 +107,9 @@ public class ApiController {
     @ApiOperation("查询排班")
     @PostMapping("/schedule/list")
     public Result findSchedulePage(HttpServletRequest request){
-
-        Map<String, String[]> parameterMap = request.getParameterMap();
-        //取值
-        String hoscode = parameterMap.get("hoscode")[0];
-        Integer page = Integer.valueOf(parameterMap.get("page")[0]);
-        Integer pageSize = Integer.valueOf(parameterMap.get("limit")[0]);
+        String hoscode = request.getParameter("hoscode");
+        Integer page = Integer.valueOf(request.getParameter("page"));
+        Integer pageSize = Integer.valueOf(request.getParameter("limit"));
 
         //非空校验
         if (StringUtils.isEmpty(hoscode)) {
@@ -167,10 +123,8 @@ public class ApiController {
     @ApiOperation("删除排班")
     @PostMapping("/schedule/remove")
     public Result removeSchedule(HttpServletRequest request){
-        Map<String, String[]> parameterMap = request.getParameterMap();
-
-        String hoscode = parameterMap.get("hoscode")[0];
-        String hosScheduleId = parameterMap.get("hosScheduleId")[0];
+        String hoscode =request.getParameter("hoscode");
+        String hosScheduleId =request.getParameter("hosScheduleId");
 
         //非空校验
         if (StringUtils.isEmpty(hoscode) || StringUtils.isEmpty(hosScheduleId)) {

@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LtZeroException extends RuntimeException{
+public class YYGHException extends RuntimeException{
     private Integer code;
     private String message;
 }

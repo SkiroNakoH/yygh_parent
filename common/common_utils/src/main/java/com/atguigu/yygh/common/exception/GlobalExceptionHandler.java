@@ -31,8 +31,8 @@ public class GlobalExceptionHandler {
     /**
      * id 小于0
      */
-    @ExceptionHandler(LtZeroException.class)
-    public Result exceptionHandler(LtZeroException e){
+    @ExceptionHandler(YYGHException.class)
+    public Result exceptionHandler(YYGHException e){
 //        e.printStackTrace();
         log.error(ExceptionUtil.getMessage(e));
         return Result.error().code(e.getCode()).message(e.getMessage());
