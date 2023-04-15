@@ -24,7 +24,7 @@ public class HospitalSetServiceImpl extends ServiceImpl<HospitalSetMapper, Hospi
     public String getSignKeyByHosCode(String hoscode) {
 
         QueryWrapper<HospitalSet> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("hos_code",hoscode);
+        queryWrapper.eq("hoscode",hoscode);
         HospitalSet hospitalSet = baseMapper.selectOne(queryWrapper);
         return hospitalSet.getSignKey();
     }

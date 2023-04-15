@@ -54,6 +54,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     //根据hoscode和hosScheduleId逻辑删除
+    //TODO 使用mongoTemplate优化性能，只执行一次mongo语句
     @Override
     public void remove(String hoscode, String hosScheduleId) {
         //根据hoscode和hosScheduleId从MongoDB中查询数据

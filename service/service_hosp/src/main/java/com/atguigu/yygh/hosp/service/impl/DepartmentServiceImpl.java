@@ -52,6 +52,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     //根据hoscode和depcode删除科室
+    //TODO 使用mongoTemplate优化性能，只执行一次mongo语句
     @Override
     public void remove(String hoscode, String depcode) {
         Department department = departmentRepository.findByHoscodeAndDepcode(hoscode, depcode);
