@@ -20,6 +20,10 @@ public class HospitalServiceImpl implements HospitalService {
     //新增或修改医院信息
     @Override
     public void saveHospital(Hospital hospital) {
+        //处理http传参，“+”转为" "问题
+        String logoData = hospital.getLogoData().replaceAll(" ", "+");
+        hospital.setLogoData(logoData);
+
         //根据hoscode查找hospital
         Hospital hospitalDB = hospitalRepository.findByHoscode(hospital.getHoscode());
         //判断是否存在
