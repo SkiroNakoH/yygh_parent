@@ -2,12 +2,17 @@ package com.atguigu.yygh.hosp.service.impl;
 
 import com.atguigu.yygh.hosp.repository.ScheduleRepository;
 import com.atguigu.yygh.hosp.service.ScheduleService;
+import com.atguigu.yygh.model.hosp.Department;
 import com.atguigu.yygh.model.hosp.Schedule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -19,6 +24,9 @@ import java.util.Date;
 public class ScheduleServiceImpl implements ScheduleService {
     @Autowired
     private ScheduleRepository scheduleRepository;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     //排班新增或修改
     @Override
@@ -54,17 +62,20 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     //根据hoscode和hosScheduleId逻辑删除
-    //TODO 使用mongoTemplate优化性能，只执行一次mongo语句
     @Override
     public void remove(String hoscode, String hosScheduleId) {
-        //根据hoscode和hosScheduleId从MongoDB中查询数据
+     /*   //根据hoscode和hosScheduleId从MongoDB中查询数据
         Schedule schedule = scheduleRepository.findByHoscodeAndHosScheduleId(hoscode, hosScheduleId);
         //查到，且没被删除
         if (schedule != null && schedule.getIsDeleted() == 0){
             //逻辑删除
             schedule.setIsDeleted(1);
             scheduleRepository.save(schedule);
-        }
+        }*/
+        Query query = new Query(Criteria.where("hoscode").is(hoscode).and("hosScheduleId").is(hosScheduleId));
 
+        Update update = new Update();
+        update.set("isDeleted",1);
+        mongoTemplate.upsert(query, update, Schedule.class);
     }
 }

@@ -7,6 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -19,6 +23,9 @@ import java.util.List;
 public class DepartmentServiceImpl implements DepartmentService {
     @Autowired
     private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     //新增或保存科室
     @Override
@@ -52,16 +59,20 @@ public class DepartmentServiceImpl implements DepartmentService {
     }
 
     //根据hoscode和depcode删除科室
-    //TODO 使用mongoTemplate优化性能，只执行一次mongo语句
     @Override
     public void remove(String hoscode, String depcode) {
-        Department department = departmentRepository.findByHoscodeAndDepcode(hoscode, depcode);
+      /*  Department department = departmentRepository.findByHoscodeAndDepcode(hoscode, depcode);
 
         if (department != null && department.getIsDeleted() == 0) {
             //逻辑删除
             department.setIsDeleted(1);
             departmentRepository.save(department);
-        }
+        }*/
+        Query query = new Query(Criteria.where("hoscode").is(hoscode).and("depcode").is(depcode));
+
+        Update update = new Update();
+        update.set("isDeleted",1);
+        mongoTemplate.upsert(query, update, Department.class);
     }
 
 }
