@@ -24,7 +24,6 @@ import java.util.List;
  * @since 2023-04-11
  */
 @Api(tags = "数据字典")
-@CrossOrigin //解决跨域访问
 @RestController
 @RequestMapping("/admin/cmn/dict")
 public class DictController {

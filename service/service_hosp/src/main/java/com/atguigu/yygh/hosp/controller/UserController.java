@@ -8,7 +8,6 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 @Api(tags = "用户登录相关接口")
-@CrossOrigin //解决前端跨域问题
 @RestController
 @RequestMapping("/admin/hosp/user")
 public class UserController {

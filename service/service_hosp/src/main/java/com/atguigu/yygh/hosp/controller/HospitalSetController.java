@@ -29,7 +29,6 @@ import java.util.UUID;
  * @since 2023-04-07
  */
 @Api(tags = "医院设置接口")
-@CrossOrigin //解决前端跨域问题
 @RestController
 @RequestMapping("/admin/hosp/hospitalSet")
 public class HospitalSetController {

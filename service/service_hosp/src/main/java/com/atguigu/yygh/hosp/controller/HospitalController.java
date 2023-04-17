@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin
 @Api(tags = "医院接口")
 @RestController
 @RequestMapping("/admin/hosp/hospital")
