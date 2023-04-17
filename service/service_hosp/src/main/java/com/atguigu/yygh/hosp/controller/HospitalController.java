@@ -30,4 +30,12 @@ public class HospitalController {
 
         return Result.ok().data(map);
     }
+
+    @ApiOperation("医院上线或下线")
+    @PutMapping("/updateStatus/{id}/{status}")
+    public Result updateStatus(@PathVariable String id, @PathVariable Integer status){
+        hospitalService.updateStatus(id,status);
+
+        return Result.ok();
+    }
 }

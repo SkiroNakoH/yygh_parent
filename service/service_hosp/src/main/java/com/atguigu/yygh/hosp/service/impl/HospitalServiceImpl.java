@@ -15,6 +15,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -103,7 +104,7 @@ public class HospitalServiceImpl implements HospitalService {
         return map;
     }
 
-
+    //封装hospital
     private void packageHospital(Hospital hospital) {
         //获取医院等级
         String hostypeString = cmnFeignClient.getNameByParentCodeAndValue(DictEnum.HOSTYPE.getDictCode(), hospital.getHostype());
@@ -116,5 +117,14 @@ public class HospitalServiceImpl implements HospitalService {
 
         hospital.getParam().put("hostypeString",hostypeString);
         hospital.getParam().put("fullAddress",fullAddress);
+    }
+
+    //修改医院状态
+    @Override
+    public void updateStatus(String id, Integer status) {
+        Update update = new Update();
+        update.set("status",status);
+
+        mongoTemplate.upsert(new Query(Criteria.where("_id").is(id)), update,Hospital.class);
     }
 }
