@@ -110,11 +110,24 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         return  baseMapper.selectOne(queryWrapper).getName();
     }
 
+    //查询医院等级名称
     @Override
     public String getNameByParentCodeAndValue(String parentCode, String value) {
         //查询出医院等级的孩子
         Long parentId = baseMapper.selectOne(new QueryWrapper<Dict>().eq("dict_code", parentCode)).getId();
 
-        return baseMapper.selectOne(new QueryWrapper<Dict>().eq("parent_id",parentId).eq("value",value)).getName();
+        return baseMapper.selectOne(new QueryWrapper<Dict>()
+                .eq("parent_id",parentId)
+                .eq("value",value))
+                .getName();
     }
+
+    //查询省名
+    @Override
+    public List<Dict> findDictByParentCode(String parentCode) {
+        Long parentId = baseMapper.selectOne(new QueryWrapper<Dict>().eq("dict_code", parentCode)).getId();
+
+        return baseMapper.selectList(new QueryWrapper<Dict>().eq("parent_id",parentId));
+    }
+
 }

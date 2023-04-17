@@ -83,15 +83,23 @@ public class DictController {
 
     /**
      * 查询医院等级
+     *
      * @param parentCode 查询医院等级的id
-     * @param value 在医院等级中，根据value查询出对应的等级
+     * @param value      在医院等级中，根据value查询出对应的等级
      * @return
      */
     @ApiOperation("根据parentCode和value查询name")
     @GetMapping("/feign/getNameByParentCodeAndValue/{parentCode}/{value}")
     public String getNameByParentCodeAndValue(@PathVariable String parentCode, @PathVariable String value) {
 
-        return dictService.getNameByParentCodeAndValue(parentCode,value);
+        return dictService.getNameByParentCodeAndValue(parentCode, value);
+    }
+
+    @ApiOperation("根据parentCode查询dict")
+    @GetMapping("/findDictByParentCode/{parentCode}")
+    public Result findDictByParentCode(@PathVariable String parentCode) {
+        List<Dict> dictList = dictService.findDictByParentCode(parentCode);
+        return Result.ok().data("list", dictList);
     }
 }
 
