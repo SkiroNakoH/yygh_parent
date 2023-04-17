@@ -20,6 +20,7 @@
         <module>service</module>
         <module>common</module>
         <module>service_client</module>
+        <module>service_gateway</module>
     </modules>
 
     <properties>
