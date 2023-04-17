@@ -18,5 +18,7 @@ public interface HospitalService {
     Map<String, Object> findPage(Integer page, Integer size, HospitalQueryVo hospitalQueryVo);
 
     void updateStatus(String id, Integer status);
+
+    Hospital getById(String id);
 }
 

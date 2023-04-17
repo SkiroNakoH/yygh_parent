@@ -127,4 +127,12 @@ public class HospitalServiceImpl implements HospitalService {
 
         mongoTemplate.upsert(new Query(Criteria.where("_id").is(id)), update,Hospital.class);
     }
+
+    @Override
+    public Hospital getById(String id) {
+        Hospital hospital = hospitalRepository.findById(id).get();
+
+        packageHospital(hospital);
+        return hospital;
+    }
 }

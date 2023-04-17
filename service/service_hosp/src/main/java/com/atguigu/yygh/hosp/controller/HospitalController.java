@@ -9,6 +9,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,5 +38,13 @@ public class HospitalController {
         hospitalService.updateStatus(id,status);
 
         return Result.ok();
+    }
+
+    @ApiOperation("医院详情")
+    @GetMapping("/getHospById/{id}")
+    public Result getHospById(@PathVariable String id){
+      Hospital hospital =  hospitalService.getById(id);
+
+        return Result.ok().data("hospital",hospital);
     }
 }
