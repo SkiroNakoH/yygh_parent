@@ -33,18 +33,19 @@ public class DictController {
     private DictService dictService;
 
     @ApiOperation("字典列表查询")
-    @GetMapping({"/findListByParentId/{parentId}","/findListByParentId"})
+    @GetMapping({"/findListByParentId/{parentId}", "/findListByParentId"})
     public Result findListByParentId(@ApiParam("父Id") @PathVariable(required = false) Long parentId) {
         if (parentId == null) {
             parentId = 1L;
         }
 
         List<Dict> dictList = dictService.findListByParentId(parentId);
-        return Result.ok().data("dictList",dictList);
+        return Result.ok().data("dictList", dictList);
     }
 
     /**
      * 读取数据库，上传Excel,让前端下载Excel
+     *
      * @param response 响应，数据载体
      * @throws IOException 文件上传IO异常
      */
@@ -52,11 +53,11 @@ public class DictController {
     @GetMapping("/downLoad")
     public void downLoad(HttpServletResponse response) throws IOException {
         dictService.downLoad(response);
-
     }
 
     /**
      * 将前端上传的Excel表下载解析，更新到数据库中
+     *
      * @param file 上传的Excel文件
      * @return 上传成功，响应20000状态码
      */
@@ -64,8 +65,33 @@ public class DictController {
     @PostMapping("/upLoad")
     public Result upLoad(MultipartFile file) throws IOException {
         dictService.upLoad(file);
-
         return Result.ok();
+    }
+
+    /**
+     * 查询省市区
+     *
+     * @param value
+     * @return
+     */
+    @ApiOperation("根据value查询name")
+    @GetMapping("/feign/getNameByValue/{value}")
+    public String getNameByValue(@PathVariable String value) {
+
+        return dictService.getNameByValue(value);
+    }
+
+    /**
+     * 查询医院等级
+     * @param parentCode 查询医院等级的id
+     * @param value 在医院等级中，根据value查询出对应的等级
+     * @return
+     */
+    @ApiOperation("根据parentCode和value查询name")
+    @GetMapping("/feign/getNameByParentCodeAndValue/{parentCode}/{value}")
+    public String getNameByParentCodeAndValue(@PathVariable String parentCode, @PathVariable String value) {
+
+        return dictService.getNameByParentCodeAndValue(parentCode,value);
     }
 }
 

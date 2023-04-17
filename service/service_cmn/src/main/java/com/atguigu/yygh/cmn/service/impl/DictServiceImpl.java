@@ -101,4 +101,20 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
     public void upLoad(MultipartFile srcFile) throws IOException {
         EasyExcel.read(srcFile.getInputStream(), DictEeVo.class, new UploadDictEeVoListener(baseMapper)).sheet().doRead();
     }
+
+    //根据value查询name
+    @Override
+    public String getNameByValue(String value) {
+        QueryWrapper<Dict> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("value",value);
+        return  baseMapper.selectOne(queryWrapper).getName();
+    }
+
+    @Override
+    public String getNameByParentCodeAndValue(String parentCode, String value) {
+        //查询出医院等级的孩子
+        Long parentId = baseMapper.selectOne(new QueryWrapper<Dict>().eq("dict_code", parentCode)).getId();
+
+        return baseMapper.selectOne(new QueryWrapper<Dict>().eq("parent_id",parentId).eq("value",value)).getName();
+    }
 }

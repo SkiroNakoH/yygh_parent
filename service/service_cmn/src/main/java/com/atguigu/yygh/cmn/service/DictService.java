@@ -23,4 +23,8 @@ public interface DictService extends IService<Dict> {
     void downLoad(HttpServletResponse response) throws IOException;
 
     void upLoad(MultipartFile srcFile) throws IOException;
+
+    String getNameByValue(String value);
+
+    String getNameByParentCodeAndValue(String parentCode, String value);
 }
