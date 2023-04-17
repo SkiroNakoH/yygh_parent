@@ -16,4 +16,6 @@ public interface ScheduleService {
     void remove(String hoscode, String hosScheduleId);
 
     Map<String, Object> arrangeDate(Integer page, Integer size, ScheduleQueryVo scheduleQueryVo);
+
+    List<Schedule> findScheduleDetail(ScheduleQueryVo scheduleQueryVo);
 }

@@ -81,7 +81,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         Query query = new Query(Criteria.where("hoscode").is(hoscode).and("hosScheduleId").is(hosScheduleId));
 
         Update update = new Update();
-        update.set("isDeleted",1);
+        update.set("isDeleted", 1);
         mongoTemplate.upsert(query, update, Schedule.class);
     }
 
@@ -100,7 +100,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         AggregationResults<BookingScheduleRuleVo> totalBookingScheduleRuleVo =
                 mongoTemplate.aggregate(totalAgg, Schedule.class, BookingScheduleRuleVo.class);
         int total = totalBookingScheduleRuleVo.getMappedResults().size();
-        map.put("total",total);
+        map.put("total", total);
 
         //满条件分页查询
         Aggregation aggregation = Aggregation.newAggregation(
@@ -110,7 +110,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                         .first("workDate").as("workDate")   //时间分组
                         .sum("reservedNumber").as("reservedNumber") //当天总预约数
                         .sum("availableNumber").as("availableNumber"),  //当天可预约数
-                Aggregation.skip((page-1)*size),
+                Aggregation.skip((page - 1) * size),
                 Aggregation.limit(size)
         );
         AggregationResults<BookingScheduleRuleVo> fullConditionBookingScheduleRuleVo =
@@ -126,13 +126,24 @@ public class ScheduleServiceImpl implements ScheduleService {
             bookingScheduleRuleVo.setDayOfWeek(dayOfWeek);
         });
 
-        map.put("list",bookingScheduleRuleVoList);
+        map.put("list", bookingScheduleRuleVoList);
 
         return map;
     }
 
+    //当天排班详情
+    @Override
+    public List<Schedule> findScheduleDetail(ScheduleQueryVo scheduleQueryVo) {
+        Query query = new Query(Criteria.where("hoscode").is(scheduleQueryVo.getHoscode())
+                .and("depcode").is(scheduleQueryVo.getDepcode())
+                .and("workDate").is(scheduleQueryVo.getWorkDate()));
+
+        return mongoTemplate.find(query, Schedule.class);
+    }
+
     /**
      * 根据日期获取周几数据
+     *
      * @param dateTime
      * @return
      */
