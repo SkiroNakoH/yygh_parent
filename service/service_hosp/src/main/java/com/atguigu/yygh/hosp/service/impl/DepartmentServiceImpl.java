@@ -3,6 +3,7 @@ package com.atguigu.yygh.hosp.service.impl;
 import com.atguigu.yygh.hosp.repository.DepartmentRepository;
 import com.atguigu.yygh.hosp.service.DepartmentService;
 import com.atguigu.yygh.model.hosp.Department;
+import com.atguigu.yygh.vo.hosp.DepartmentVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -13,8 +14,11 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 科室服务
@@ -71,8 +75,39 @@ public class DepartmentServiceImpl implements DepartmentService {
         Query query = new Query(Criteria.where("hoscode").is(hoscode).and("depcode").is(depcode));
 
         Update update = new Update();
-        update.set("isDeleted",1);
+        update.set("isDeleted", 1);
         mongoTemplate.upsert(query, update, Department.class);
+    }
+
+    @Override
+    public List<DepartmentVo> findDepartmentTree(String hoscode) {
+        List<Department> departmentList = departmentRepository.findByHoscode(hoscode);
+
+        ArrayList<DepartmentVo> finalList = new ArrayList<>();
+        //处理数据  --->    按bigname科室名分组
+        Map<String, List<Department>> map = departmentList.stream().collect(Collectors.groupingBy(Department::getBigname));
+        for (Map.Entry<String, List<Department>> entry : map.entrySet()) {
+            DepartmentVo departmentVo = new DepartmentVo();
+            departmentVo.setDepname(entry.getKey());     //设置科室名
+            departmentVo.setDepcode(entry.getValue().get(0).getDepcode());     //设置科室编号
+
+            //处理子数据
+            ArrayList<DepartmentVo> childrenList = new ArrayList<>();
+            for (Department department : entry.getValue()) {
+                DepartmentVo childrenVo = new DepartmentVo();
+                childrenVo.setDepname(department.getDepname());
+                childrenVo.setDepcode(department.getDepcode());
+                childrenList.add(childrenVo);
+            }
+
+            //添加子数据
+            departmentVo.setChildren(childrenList);
+
+            finalList.add(departmentVo);
+        }
+
+
+        return finalList;
     }
 
 }
