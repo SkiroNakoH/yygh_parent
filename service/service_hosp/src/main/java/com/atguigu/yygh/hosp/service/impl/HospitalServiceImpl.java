@@ -2,6 +2,9 @@ package com.atguigu.yygh.hosp.service.impl;
 
 import com.alibaba.excel.util.StringUtils;
 import com.alibaba.fastjson.JSONObject;
+
+import com.atguigu.yygh.cmn.client.CmnFeignClient;
+import com.atguigu.yygh.enums.DictEnum;
 import com.atguigu.yygh.hosp.repository.HospitalRepository;
 import com.atguigu.yygh.hosp.service.HospitalService;
 import com.atguigu.yygh.model.hosp.Hospital;
@@ -22,6 +25,8 @@ public class HospitalServiceImpl implements HospitalService {
     private HospitalRepository hospitalRepository;
     @Autowired
     private MongoTemplate mongoTemplate;
+    @Autowired
+    private CmnFeignClient cmnFeignClient;
 
     //新增或修改医院信息
     @Override
@@ -58,8 +63,8 @@ public class HospitalServiceImpl implements HospitalService {
 
     //分页查询
     @Override
-    public  Map<String, Object> findPage(Integer page, Integer size, HospitalQueryVo hospitalQueryVo) {
-       Map<String, Object> map = new HashMap<>();
+    public Map<String, Object> findPage(Integer page, Integer size, HospitalQueryVo hospitalQueryVo) {
+        Map<String, Object> map = new HashMap<>();
 
         //等值判断
         String provinceCode = hospitalQueryVo.getProvinceCode();
@@ -86,17 +91,30 @@ public class HospitalServiceImpl implements HospitalService {
 
         //查询总数
         long total = mongoTemplate.count(query, Hospital.class);
-        map.put("total",total);
+        map.put("total", total);
 
 
-        List<Hospital> hospitalList = mongoTemplate.find(query.skip((page-1)*size).limit(size), Hospital.class);
-
-        map.put("list",hospitalList);
+        List<Hospital> hospitalList = mongoTemplate.find(query.skip((page - 1) * size).limit(size), Hospital.class);
 
         //TODO: 处理省市区名字，以及医院详细地址
+        hospitalList.forEach(this::packageHospital);
 
-
-
+        map.put("list", hospitalList);
         return map;
+    }
+
+
+    private void packageHospital(Hospital hospital) {
+        //获取医院等级
+        String hostypeString = cmnFeignClient.getNameByParentCodeAndValue(DictEnum.HOSTYPE.getDictCode(), hospital.getHostype());
+
+        //拼接省市区
+        String provinceName = cmnFeignClient.getNameByValue(hospital.getProvinceCode());
+        String cityName = cmnFeignClient.getNameByValue(hospital.getCityCode());
+        String districtName = cmnFeignClient.getNameByValue(hospital.getDistrictCode());
+        String fullAddress = provinceName + cityName + districtName + hospital.getAddress();
+
+        hospital.getParam().put("hostypeString",hostypeString);
+        hospital.getParam().put("fullAddress",fullAddress);
     }
 }
