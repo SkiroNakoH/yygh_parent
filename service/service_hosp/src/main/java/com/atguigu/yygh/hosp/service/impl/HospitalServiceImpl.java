@@ -115,17 +115,17 @@ public class HospitalServiceImpl implements HospitalService {
         String districtName = cmnFeignClient.getNameByValue(hospital.getDistrictCode());
         String fullAddress = provinceName + cityName + districtName + hospital.getAddress();
 
-        hospital.getParam().put("hostypeString",hostypeString);
-        hospital.getParam().put("fullAddress",fullAddress);
+        hospital.getParam().put("hostypeString", hostypeString);
+        hospital.getParam().put("fullAddress", fullAddress);
     }
 
     //修改医院状态
     @Override
     public void updateStatus(String id, Integer status) {
         Update update = new Update();
-        update.set("status",status);
+        update.set("status", status);
 
-        mongoTemplate.upsert(new Query(Criteria.where("_id").is(id)), update,Hospital.class);
+        mongoTemplate.upsert(new Query(Criteria.where("_id").is(id)), update, Hospital.class);
     }
 
     @Override
@@ -134,5 +134,50 @@ public class HospitalServiceImpl implements HospitalService {
 
         packageHospital(hospital);
         return hospital;
+    }
+
+    //根据医院名称模糊查询医院详情
+    @Override
+    public List<Hospital> findHospListByHosname(String hosname) {
+        List<Hospital> list = hospitalRepository.findByHosnameLikeAndStatus(hosname, 1);
+
+        list.forEach(this::packageHospital);
+        return list;
+    }
+
+    //用户主页查询
+    //传入参数:   hostype, distrioctCode,status,hosname模糊
+    @Override
+    public   List<Hospital>  findQuery4Site(HospitalQueryVo hospitalQueryVo) {
+        //等值判断
+        String hostype = hospitalQueryVo.getHostype();
+        String districtCode = hospitalQueryVo.getDistrictCode();
+
+        //模糊匹配
+        String hosname = hospitalQueryVo.getHosname();
+
+        //非空判断
+        Criteria criteria = new Criteria();
+        if (!StringUtils.isEmpty(hostype)) {
+            //省的编号
+            criteria.and("hostype").is(hostype);
+        }
+        if (!StringUtils.isEmpty(districtCode)) {
+            //市的编号
+            criteria.and("districtCode").is(districtCode);
+        }
+        if (!StringUtils.isEmpty(hosname)) {
+            //医院名称, 模拟查询》正则表达式
+            criteria.and("hosname").regex(hosname);
+        }
+        criteria.and("status").is(1);
+        Query query = new Query(criteria);
+
+        List<Hospital> hospitalList = mongoTemplate.find(query, Hospital.class);
+
+        //TODO: 处理省市区名字，以及医院详细地址
+        hospitalList.forEach(this::packageHospital);
+
+        return hospitalList;
     }
 }

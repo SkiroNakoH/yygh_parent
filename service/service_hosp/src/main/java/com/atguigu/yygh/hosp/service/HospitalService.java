@@ -20,5 +20,9 @@ public interface HospitalService {
     void updateStatus(String id, Integer status);
 
     Hospital getById(String id);
+
+    List<Hospital> findHospListByHosname(String hosname);
+
+    List<Hospital> findQuery4Site(HospitalQueryVo hospitalQueryVo);
 }
 

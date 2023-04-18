@@ -24,26 +24,48 @@ public class HospitalController {
     @ApiOperation("分页查询")
     @GetMapping("/findPage/{page}/{size}")
     public Result findPage(@PathVariable Integer page, @PathVariable Integer size,
-                          HospitalQueryVo hospitalQueryVo){
+                           HospitalQueryVo hospitalQueryVo) {
 
-        Map<String, Object> map = hospitalService.findPage(page,size,hospitalQueryVo);
+        Map<String, Object> map = hospitalService.findPage(page, size, hospitalQueryVo);
 
         return Result.ok().data(map);
     }
 
     @ApiOperation("医院上线或下线")
     @PutMapping("/updateStatus/{id}/{status}")
-    public Result updateStatus(@PathVariable String id, @PathVariable Integer status){
-        hospitalService.updateStatus(id,status);
+    public Result updateStatus(@PathVariable String id, @PathVariable Integer status) {
+        hospitalService.updateStatus(id, status);
 
         return Result.ok();
     }
 
-    @ApiOperation("医院详情")
+    @ApiOperation("根据Id医院详情")
     @GetMapping("/getHospById/{id}")
-    public Result getHospById(@PathVariable String id){
-      Hospital hospital =  hospitalService.getById(id);
+    public Result getHospById(@PathVariable String id) {
+        Hospital hospital = hospitalService.getById(id);
 
-        return Result.ok().data("hospital",hospital);
+        return Result.ok().data("hospital", hospital);
     }
+
+    @ApiOperation("根据医院名称模糊查询医院列表")
+    @GetMapping("/findHospListByHosname/{hosname}")
+    public Result findHospListByHosname(@PathVariable String hosname) {
+        List<Hospital> list = hospitalService.findHospListByHosname(hosname);
+
+        return Result.ok().data("list", list);
+    }
+
+    /**
+     * 参数需求:   hostype, distrioctCode,status,hosname模糊
+     * @param hospitalQueryVo
+     * @return
+     */
+    @ApiOperation("用户界面查询")
+    @GetMapping("/findQuery4Site")
+    public Result findQuery4Site(HospitalQueryVo hospitalQueryVo) {
+        List<Hospital>  list = hospitalService.findQuery4Site(hospitalQueryVo);
+
+        return Result.ok().data("list",list);
+    }
+
 }
