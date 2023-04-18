@@ -68,4 +68,12 @@ public class HospitalController {
         return Result.ok().data("list",list);
     }
 
+    @ApiOperation("根据医院编码查看医院详情")
+    @GetMapping("/getHospByHoscode/{hoscode}")
+    public Result getHospByHoscode(@PathVariable String hoscode) {
+        Hospital hospital = hospitalService.getHospByHoscode(hoscode);
+
+        return Result.ok().data("hospital", hospital);
+    }
+
 }

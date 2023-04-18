@@ -24,5 +24,7 @@ public interface HospitalService {
     List<Hospital> findHospListByHosname(String hosname);
 
     List<Hospital> findQuery4Site(HospitalQueryVo hospitalQueryVo);
+
+    Hospital getHospByHoscode(String hoscode);
 }
 

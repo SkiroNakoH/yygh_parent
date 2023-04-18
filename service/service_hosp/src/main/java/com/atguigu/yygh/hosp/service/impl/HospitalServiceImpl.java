@@ -180,4 +180,12 @@ public class HospitalServiceImpl implements HospitalService {
 
         return hospitalList;
     }
+
+    @Override
+    public Hospital getHospByHoscode(String hoscode) {
+        Hospital hospital = hospitalRepository.findByHoscode(hoscode);
+
+        packageHospital(hospital);
+        return hospital;
+    }
 }
