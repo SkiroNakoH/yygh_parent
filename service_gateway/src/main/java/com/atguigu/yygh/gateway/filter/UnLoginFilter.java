@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-@Component
+//@Component
 public class UnLoginFilter implements GlobalFilter, Ordered {
     private AntPathMatcher antPathMatcher = new AntPathMatcher();
     @Override
