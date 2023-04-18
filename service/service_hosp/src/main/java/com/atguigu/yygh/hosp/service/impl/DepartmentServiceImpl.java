@@ -85,11 +85,11 @@ public class DepartmentServiceImpl implements DepartmentService {
 
         ArrayList<DepartmentVo> finalList = new ArrayList<>();
         //处理数据  --->    按bigname科室名分组
-        Map<String, List<Department>> map = departmentList.stream().collect(Collectors.groupingBy(Department::getBigname));
+        Map<String, List<Department>> map = departmentList.stream().collect(Collectors.groupingBy(Department::getBigcode));
         for (Map.Entry<String, List<Department>> entry : map.entrySet()) {
             DepartmentVo departmentVo = new DepartmentVo();
-            departmentVo.setDepname(entry.getKey());     //设置科室名
-            departmentVo.setDepcode(entry.getValue().get(0).getDepcode());     //设置科室编号
+            departmentVo.setDepname(entry.getValue().get(0).getBigname());     //设置科室名
+            departmentVo.setDepcode(entry.getValue().get(0).getBigcode());     //设置科室编号
 
             //处理子数据
             ArrayList<DepartmentVo> childrenList = new ArrayList<>();
