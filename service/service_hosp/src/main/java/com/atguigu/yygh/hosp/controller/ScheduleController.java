@@ -40,18 +40,12 @@ public class ScheduleController {
 
 
     @ApiOperation("当天排班详情")
-    @GetMapping("/findScheduleDetail")
-    public Result findScheduleDetail(ScheduleQueryVo scheduleQueryVo) {
-       /* //测试代码
-        try {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            Date date = simpleDateFormat.parse("2021-04-22");
-            scheduleQueryVo.setWorkDate(date);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }*/
-
-        List<Schedule> list = scheduleService.findScheduleDetail(scheduleQueryVo);
+    @GetMapping("/findScheduleDetail/{hoscode}/{depcode}/{workDate}")
+    public Result findScheduleDetail(@PathVariable String hoscode,
+            @PathVariable String depcode,
+            @PathVariable String workDate
+           ) {
+        List<Schedule> list = scheduleService.findScheduleDetail(hoscode,depcode,workDate);
         return Result.ok().data("list", list);
     }
 

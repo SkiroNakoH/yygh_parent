@@ -133,13 +133,17 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     //当天排班详情
     @Override
-    public List<Schedule> findScheduleDetail(ScheduleQueryVo scheduleQueryVo) {
-        Query query = new Query(Criteria.where("hoscode").is(scheduleQueryVo.getHoscode())
-                .and("depcode").is(scheduleQueryVo.getDepcode())
-                .and("workDate").is(scheduleQueryVo.getWorkDate()));
+    public List<Schedule> findScheduleDetail(String hoscode, String depcode, String workDate) {
+        Date date = new DateTime(workDate).toDate();
+
+        Query query = new Query(Criteria.where("hoscode").is(hoscode)
+                .and("depcode").is(depcode)
+                .and("workDate").is(date));
 
         return mongoTemplate.find(query, Schedule.class);
     }
+
+
 
     /**
      * 根据日期获取周几数据
