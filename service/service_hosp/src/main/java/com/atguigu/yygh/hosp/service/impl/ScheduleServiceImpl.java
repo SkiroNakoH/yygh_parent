@@ -110,6 +110,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                         .first("workDate").as("workDate")   //时间分组
                         .sum("reservedNumber").as("reservedNumber") //当天总预约数
                         .sum("availableNumber").as("availableNumber"),  //当天可预约数
+                Aggregation.sort(Sort.by(Sort.Order.asc("workDate"))),  //日期升序
                 Aggregation.skip((page - 1) * size),
                 Aggregation.limit(size)
         );
