@@ -18,6 +18,10 @@ spring:
           uri: lb://service-cmn
           predicates:
             - Path=/*/cmn/**
+        - id: service-user
+          uri: lb://service-user
+          predicates:
+            - Path=/*/user/**
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
