@@ -10,6 +10,8 @@ import com.atguigu.yygh.vo.user.LoginVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -26,16 +28,22 @@ import java.util.Map;
 @Service
 public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> implements UserInfoService {
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @Override
     public Map<String, Object> login(LoginVo loginVo) {
         //1.判断账户和密码是否填写
         String phone = loginVo.getPhone();
         String code = loginVo.getCode();
         if (StringUtils.isEmpty(phone) || StringUtils.isEmpty(code)) {
-            throw new YYGHException(ResultCode.ERROR, "账户或密码不能为空");
+            throw new YYGHException(ResultCode.ERROR, "账户或验证码不能为空");
         }
 
-        //TODO 短信验证
+        //从redis中获取短信
+        Object shortMessage = redisTemplate.opsForValue().get(phone);
+        if(!code.equals(shortMessage))
+            throw new YYGHException(ResultCode.ERROR, "验证码有误!");
 
         //查询数据库
         QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();

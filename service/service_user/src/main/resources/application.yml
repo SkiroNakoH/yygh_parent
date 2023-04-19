@@ -10,6 +10,17 @@ spring:
     url: jdbc:mysql://localhost:3306/yygh_user?characterEncoding=utf-8&useSSL=false
     username: root
     password: 123456
+  redis: #redis数据库连接
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    timeout: 1800000
+    lettuce:
+      pool: #redis连接池
+        max-active: 20
+        max-idle: 5
+        min-idle: 0
+        max-wait: -1
   jackson: #返回json的全局时间格式
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
