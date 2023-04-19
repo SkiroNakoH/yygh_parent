@@ -35,7 +35,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             throw new YYGHException(ResultCode.ERROR, "账户或密码不能为空");
         }
 
-        //TODO 密码验证
+        //TODO 短信验证
 
         //查询数据库
         QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
