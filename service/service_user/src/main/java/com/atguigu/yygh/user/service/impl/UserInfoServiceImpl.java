@@ -5,6 +5,7 @@ import com.atguigu.yygh.common.utils.ResultCode;
 import com.atguigu.yygh.model.user.UserInfo;
 import com.atguigu.yygh.user.mapper.UserInfoMapper;
 import com.atguigu.yygh.user.service.UserInfoService;
+import com.atguigu.yygh.user.utils.JwtUtil;
 import com.atguigu.yygh.vo.user.LoginVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -49,23 +50,24 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         }
 
         //账户冻结
-        if(userInfo != null && userInfo.getStatus() == 0)
-            throw new YYGHException(ResultCode.ERROR,"账户已冻结");
+        if (userInfo.getStatus() == 0)
+            throw new YYGHException(ResultCode.ERROR, "账户已冻结");
 
         //账户存在,不做处理
 
         //响应数据
         String name = userInfo.getNickName();
-        if(StringUtils.isEmpty(name)){
+        if (StringUtils.isEmpty(name)) {
             name = userInfo.getName();
         }
-        if(StringUtils.isEmpty(name)){
+        if (StringUtils.isEmpty(name)) {
             name = userInfo.getPhone();
         }
 
-       Map<String, Object> map = new HashMap<>();
-       map.put("name",name);
-       map.put("token","令牌");
+        String token = JwtUtil.createToken(userInfo.getId(), name);
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        map.put("token", token);
 
         return map;
     }
