@@ -29,4 +29,12 @@ public class WeiXinController {
         return Result.ok().data(map);
     }
 
+    @ApiOperation("微信扫码回调")
+    @GetMapping("/redirect")
+    public Result redirect(String code,String state){
+        System.out.println("code = " + code);
+        System.out.println("state = " + state);
+
+        return Result.ok();
+    }
 }
