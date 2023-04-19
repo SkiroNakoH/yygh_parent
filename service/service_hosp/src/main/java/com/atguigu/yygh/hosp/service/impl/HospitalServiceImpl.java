@@ -97,7 +97,7 @@ public class HospitalServiceImpl implements HospitalService {
 
         List<Hospital> hospitalList = mongoTemplate.find(query.skip((page - 1) * size).limit(size), Hospital.class);
 
-        //TODO: 处理省市区名字，以及医院详细地址
+        //处理省市区名字，以及医院详细地址
         hospitalList.forEach(this::packageHospital);
 
         map.put("list", hospitalList);
