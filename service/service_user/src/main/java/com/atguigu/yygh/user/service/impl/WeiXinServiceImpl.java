@@ -38,7 +38,6 @@ public class WeiXinServiceImpl implements WeiXinService {
     @Override
     public Map<String, String> redirectProcessor(String code) throws Exception {
 
-        //TODO: Illegal character in scheme name at index 0
         //1.使用code获取access_token
 //  请求地址: https://api.weixin.qq.com/sns/oauth2/access_token?appid=APPID&secret=SECRET&code=CODE&grant_type=authorization_code
         StringBuffer accessTokenTemplate = new StringBuffer()
