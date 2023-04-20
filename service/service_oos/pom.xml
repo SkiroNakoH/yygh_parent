@@ -5,28 +5,17 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.atguigu</groupId>
-        <artifactId>common</artifactId>
+        <artifactId>service</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>common_utils</artifactId>
+    <artifactId>service_oos</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <dependencies>
-        <!-- 七牛云依赖-->
-        <dependency>
-            <groupId>com.qiniu</groupId>
-            <artifactId>qiniu-java-sdk</artifactId>
-            <version>7.10.1</version>
-        </dependency>
-        <!--        gson解析七牛云上传结果-->
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-        </dependency>
-    </dependencies>
+
+
 </project>
