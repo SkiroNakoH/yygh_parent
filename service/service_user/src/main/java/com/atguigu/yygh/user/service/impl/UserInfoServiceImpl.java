@@ -79,4 +79,12 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
         return map;
     }
+
+    @Override
+    public UserInfo getByOpenId(String openid) {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("openid",openid);
+
+        return baseMapper.selectOne(queryWrapper);
+    }
 }
