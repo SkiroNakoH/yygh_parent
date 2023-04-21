@@ -8,9 +8,11 @@ import com.atguigu.yygh.user.utils.ConstantPropertiesUtil;
 import com.atguigu.yygh.user.utils.HttpClientUtils;
 import com.atguigu.yygh.user.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -23,14 +25,14 @@ public class WeiXinServiceImpl implements WeiXinService {
     private UserInfoService userInfoService;
 
     @Override
-    public Map<String, Object> getQrParam() throws UnsupportedEncodingException {
+    public Map<String, Object> getQrParam(String state) throws UnsupportedEncodingException {
         String redirectUri = URLEncoder.encode(ConstantPropertiesUtil.WX_OPEN_REDIRECT_URL, "utf-8");
 
         Map<String, Object> map = new HashMap<>();
         map.put("appid", ConstantPropertiesUtil.WX_OPEN_APP_ID);
         map.put("scope", "snsapi_login");
         map.put("redirectUri", redirectUri);
-        map.put("state", Long.toString(System.currentTimeMillis()));
+        map.put("state", state);
 
         return map;
     }
@@ -79,12 +81,13 @@ public class WeiXinServiceImpl implements WeiXinService {
             // 查看手机号是否存在，如果存在，修改数据库；如果不存在，添加该用户--> userInfoService的save有此功能     -->     无法获取手机号-->舍弃
             //新增用户
             String nickname = userInfoJSON.getString("nickname");
-//            String headimgurl = userInfoJSON.getString("headimgurl");
+            String headimgurl = userInfoJSON.getString("headimgurl");
 
             userInfo = new UserInfo();
 
             userInfo.setNickName(nickname);
             userInfo.setOpenid(openid);
+            userInfo.setHeadimgurl(headimgurl);
             userInfo.setStatus(1);
             userInfoService.save(userInfo);
         }
@@ -103,6 +106,7 @@ public class WeiXinServiceImpl implements WeiXinService {
         map.put("token", JwtUtil.createToken(userInfo.getId(), name));
         map.put("openid", openid);
         map.put("name", name);
+        map.put("headimgurl",userInfo.getHeadimgurl());
         return map;
     }
 }

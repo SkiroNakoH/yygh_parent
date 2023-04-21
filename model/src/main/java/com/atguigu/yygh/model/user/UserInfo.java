@@ -57,5 +57,8 @@ public class UserInfo extends BaseEntity {
 	@TableField("status")
 	private Integer status;
 
+	@ApiModelProperty(value = "用户头像")
+	@TableField("headimgurl")
+	private String headimgurl;
 }
 

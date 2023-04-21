@@ -56,6 +56,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         Map<String, Object> map = new HashMap<>();
         map.put("name", name);
         map.put("token", token);
+        map.put("headimgurl",userInfo.getHeadimgurl());
 
         return map;
     }
