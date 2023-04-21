@@ -9,6 +9,7 @@ import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +18,7 @@ import java.util.Properties;
 /**
  * 七牛云工具类
  */
+@Slf4j
 public class QiniuUtils {
 
     public static String accessKey;
@@ -73,8 +75,6 @@ public class QiniuUtils {
             Response response = uploadManager.put(bytes, key, upToken);
             //解析上传成功的结果
             DefaultPutRet putRet = new Gson().fromJson(response.bodyString(), DefaultPutRet.class);
-            System.out.println(putRet.key);
-            System.out.println(putRet.hash);
         } catch (QiniuException ex) {
             Response r = ex.response;
             System.err.println(r.toString());
@@ -97,8 +97,8 @@ public class QiniuUtils {
             bucketManager.delete(bucket, key);
         } catch (QiniuException ex) {
             //如果遇到异常，说明删除失败
-            System.err.println(ex.code());
-            System.err.println(ex.response.toString());
+            log.error(String.valueOf(ex.code()));
+            log.error(ex.response.toString());
         }
     }
 

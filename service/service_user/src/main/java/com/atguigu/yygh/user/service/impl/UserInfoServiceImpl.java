@@ -2,12 +2,15 @@ package com.atguigu.yygh.user.service.impl;
 
 import com.atguigu.yygh.common.exception.YYGHException;
 import com.atguigu.yygh.common.utils.ResultCode;
+import com.atguigu.yygh.enums.AuthStatusEnum;
 import com.atguigu.yygh.model.user.UserInfo;
 import com.atguigu.yygh.user.mapper.UserInfoMapper;
 import com.atguigu.yygh.user.service.UserInfoService;
 import com.atguigu.yygh.user.utils.JwtUtil;
 import com.atguigu.yygh.vo.user.LoginVo;
+import com.atguigu.yygh.vo.user.UserAuthVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -159,5 +162,27 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         queryWrapper.eq("openid", openid);
 
         return baseMapper.selectOne(queryWrapper);
+    }
+
+    //用户认证
+    @Override
+    public void saveUserAuth(Long userId, UserAuthVo userAuthVo) {
+        //填写认证信息
+        UpdateWrapper<UserInfo> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id",userId);
+        updateWrapper.set("name",userAuthVo.getName());
+        updateWrapper.set("certificates_type",userAuthVo.getCertificatesType());
+        updateWrapper.set("certificates_no",userAuthVo.getCertificatesNo());
+        updateWrapper.set("certificates_url",userAuthVo.getCertificatesUrl());
+
+        //todo: 平台审批
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        updateWrapper.set("auth_status", AuthStatusEnum.AUTH_SUCCESS.getStatus());
+
+        baseMapper.update(new UserInfo(),updateWrapper);
     }
 }
