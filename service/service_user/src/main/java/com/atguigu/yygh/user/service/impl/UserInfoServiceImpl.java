@@ -129,6 +129,11 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                 return userInfo;
             } else {
                 //2.手机号存在--> 合并
+
+                // 3.手机号已被其他微信用户使用
+                if (!StringUtils.isEmpty(userInfoByPhone.getOpenid()))
+                    throw new YYGHException(ResultCode.ERROR,"该手机号已被绑定!");
+
                 //将微信的相关信息传入phone的信息中，修改phone的数据
                 userInfoByPhone.setOpenid(userInfo.getOpenid());
                 userInfoByPhone.setNickName(userInfo.getNickName());
@@ -139,7 +144,10 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                 baseMapper.deleteById(userInfo);
 
                 return userInfoByPhone;
+
+
             }
+
 
         }
         return userInfo;
