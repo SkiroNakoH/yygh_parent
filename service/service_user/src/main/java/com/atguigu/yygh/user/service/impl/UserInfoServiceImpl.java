@@ -56,7 +56,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         Map<String, Object> map = new HashMap<>();
         map.put("name", name);
         map.put("token", token);
-        map.put("headimgurl",userInfo.getHeadimgurl());
+        map.put("headimgurl", userInfo.getHeadimgurl());
 
         return map;
     }
@@ -108,18 +108,39 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             if (StringUtils.isEmpty(phone))
                 throw new YYGHException(ResultCode.ERROR, "第一次扫码登录请绑定手机号");
 
-            if(StringUtils.isEmpty(code))
-                throw new YYGHException(ResultCode.ERROR,"短信验证码不能为空");
+            if (StringUtils.isEmpty(code))
+                throw new YYGHException(ResultCode.ERROR, "短信验证码不能为空");
 
             //携带手机号-->校验短信
             Object shortMessage = redisTemplate.opsForValue().get(phone);
             if (!code.equals(shortMessage))
                 throw new YYGHException(ResultCode.ERROR, "验证码有误!");
 
-            //向数据库中添加手机号
-            userInfo.setPhone(loginVo.getPhone());
-            userInfo.setStatus(1);
-            baseMapper.updateById(userInfo);
+            //查询db，判断是否有该手机号
+            QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("phone", phone);
+            UserInfo userInfoByPhone = baseMapper.selectOne(queryWrapper);
+            if (userInfoByPhone == null) {
+                //1.手机号不存在
+                //向数据库中添加手机号
+                userInfo.setPhone(loginVo.getPhone());
+                userInfo.setStatus(1);
+                baseMapper.updateById(userInfo);
+                return userInfo;
+            } else {
+                //2.手机号存在--> 合并
+                //将微信的相关信息传入phone的信息中，修改phone的数据
+                userInfoByPhone.setOpenid(userInfo.getOpenid());
+                userInfoByPhone.setNickName(userInfo.getNickName());
+                userInfoByPhone.setHeadimgurl(userInfo.getHeadimgurl());
+                //修改手机信息，追加微信信息
+                baseMapper.updateById(userInfoByPhone);
+                //删除微信信息
+                baseMapper.deleteById(userInfo);
+
+                return userInfoByPhone;
+            }
+
         }
         return userInfo;
     }

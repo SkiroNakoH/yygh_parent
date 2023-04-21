@@ -21,6 +21,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Api(tags = "微信接口")
 @Controller
@@ -39,7 +40,7 @@ public class WeiXinController {
         String state = System.currentTimeMillis() + session.getId();
 
         //存入redis中，防止csrf攻击（跨站请求伪造攻击）
-        redisTemplate.opsForValue().set(state,"");
+        redisTemplate.opsForValue().set(state,"",5, TimeUnit.MINUTES);
 
         Map<String, Object> map = weiXinService.getQrParam(state);
 
