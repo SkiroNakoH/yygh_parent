@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -37,6 +38,13 @@ public class PatientServiceImpl extends ServiceImpl<PatientMapper, Patient> impl
         patientList.forEach(this::packagePatient);
 
         return patientList;
+    }
+
+    @Override
+    public Patient getById(Serializable id) {
+        Patient patient = super.getById(id);
+        packagePatient(patient);
+        return patient;
     }
 
     private void packagePatient(Patient patient) {

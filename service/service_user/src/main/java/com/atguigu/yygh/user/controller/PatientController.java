@@ -8,10 +8,7 @@ import com.atguigu.yygh.user.utils.AuthInfoUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -38,6 +35,38 @@ public class PatientController {
         List<Patient> list = patientService.findByUserId(userId);
 
         return Result.ok().data("list",list);
+    }
+
+    @ApiOperation("获取就诊人信息")
+    @GetMapping("/getById/{id}")
+    public Result getById(@PathVariable Long id){
+        Patient patient = patientService.getById(id);
+
+        return Result.ok().data("patient",patient);
+    }
+
+    @ApiOperation("新增就诊人")
+    @PostMapping("/save")
+    public Result save(@RequestBody Patient patient,HttpServletRequest request){
+        Long userId = AuthInfoUtil.getUserId(request);
+        patient.setUserId(userId);
+        patientService.save(patient);
+
+        return Result.ok();
+    }
+
+    @ApiOperation("修改就诊人")
+    @PutMapping("/update")
+    public Result update(@RequestBody Patient patient){
+        patientService.updateById(patient);
+        return Result.ok();
+    }
+
+    @ApiOperation("删除就诊人")
+    @DeleteMapping("/remove/{id}")
+    public Result remove(@PathVariable Long id){
+        patientService.removeById(id);
+        return Result.ok();
     }
 }
 
