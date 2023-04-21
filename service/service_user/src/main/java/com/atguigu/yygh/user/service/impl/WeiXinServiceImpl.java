@@ -1,6 +1,8 @@
 package com.atguigu.yygh.user.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.atguigu.yygh.common.exception.YYGHException;
+import com.atguigu.yygh.common.utils.ResultCode;
 import com.atguigu.yygh.model.user.UserInfo;
 import com.atguigu.yygh.user.service.UserInfoService;
 import com.atguigu.yygh.user.service.WeiXinService;
@@ -64,6 +66,10 @@ public class WeiXinServiceImpl implements WeiXinService {
 
         //查询数据库，是否存在该用户
         UserInfo userInfo = userInfoService.getByOpenId(openid);
+        //用户账户被冻结
+        if(userInfo != null && userInfo.getStatus() == 0)
+            throw new YYGHException(ResultCode.ERROR,"该账户已冻结！");
+
         if (userInfo == null) {
             //数据库中没有该微信号的此用户
             //使用accessToken请求用户信息
