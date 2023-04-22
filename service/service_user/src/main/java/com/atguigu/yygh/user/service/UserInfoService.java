@@ -3,6 +3,8 @@ package com.atguigu.yygh.user.service;
 import com.atguigu.yygh.model.user.UserInfo;
 import com.atguigu.yygh.vo.user.LoginVo;
 import com.atguigu.yygh.vo.user.UserAuthVo;
+import com.atguigu.yygh.vo.user.UserInfoQueryVo;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.Map;
@@ -22,4 +24,6 @@ public interface UserInfoService extends IService<UserInfo> {
     UserInfo getByOpenId(String openid);
 
     void saveUserAuth(Long userId, UserAuthVo userAuthVo);
+
+    Page<UserInfo>  findPage(Integer page, Integer size, UserInfoQueryVo userInfoQueryVo);
 }

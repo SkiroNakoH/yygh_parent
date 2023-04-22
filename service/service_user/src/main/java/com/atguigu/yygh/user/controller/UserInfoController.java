@@ -8,11 +8,15 @@ import com.atguigu.yygh.user.service.UserInfoService;
 import com.atguigu.yygh.user.utils.JwtUtil;
 import com.atguigu.yygh.vo.user.LoginVo;
 import com.atguigu.yygh.vo.user.UserAuthVo;
+import com.atguigu.yygh.vo.user.UserInfoQueryVo;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -57,6 +61,15 @@ public class UserInfoController {
         userInfo.getParam().put("authStatusString",authStatusString);
 
         return Result.ok().data("userInfo",userInfo);
+    }
+
+    @ApiOperation("条件分页查询用户列表")
+    @GetMapping("/findPage/{page}/{size}")
+    public Result findPage(@PathVariable Integer page, @PathVariable Integer size,
+                           UserInfoQueryVo userInfoQueryVo){
+
+        Page<UserInfo> pageInfo = userInfoService.findPage(page,size,userInfoQueryVo);
+        return Result.ok().data("pageInfo",pageInfo);
     }
 
 }

@@ -9,8 +9,10 @@ import com.atguigu.yygh.user.service.UserInfoService;
 import com.atguigu.yygh.user.utils.JwtUtil;
 import com.atguigu.yygh.vo.user.LoginVo;
 import com.atguigu.yygh.vo.user.UserAuthVo;
+import com.atguigu.yygh.vo.user.UserInfoQueryVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,7 +137,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
 
                 // 3.手机号已被其他微信用户使用
                 if (!StringUtils.isEmpty(userInfoByPhone.getOpenid()))
-                    throw new YYGHException(ResultCode.ERROR,"该手机号已被绑定!");
+                    throw new YYGHException(ResultCode.ERROR, "该手机号已被绑定!");
 
                 //将微信的相关信息传入phone的信息中，修改phone的数据
                 userInfoByPhone.setOpenid(userInfo.getOpenid());
@@ -169,20 +171,43 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     public void saveUserAuth(Long userId, UserAuthVo userAuthVo) {
         //填写认证信息
         UpdateWrapper<UserInfo> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("id",userId);
-        updateWrapper.set("name",userAuthVo.getName());
-        updateWrapper.set("certificates_type",userAuthVo.getCertificatesType());
-        updateWrapper.set("certificates_no",userAuthVo.getCertificatesNo());
-        updateWrapper.set("certificates_url",userAuthVo.getCertificatesUrl());
+        updateWrapper.eq("id", userId);
+        updateWrapper.set("name", userAuthVo.getName());
+        updateWrapper.set("certificates_type", userAuthVo.getCertificatesType());
+        updateWrapper.set("certificates_no", userAuthVo.getCertificatesNo());
+        updateWrapper.set("certificates_url", userAuthVo.getCertificatesUrl());
 
-        //todo: 平台审批
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-        updateWrapper.set("auth_status", AuthStatusEnum.AUTH_SUCCESS.getStatus());
+        updateWrapper.set("auth_status", AuthStatusEnum.AUTH_RUN.getStatus());
 
-        baseMapper.update(new UserInfo(),updateWrapper);
+        baseMapper.update(new UserInfo(), updateWrapper);
+    }
+
+    @Override
+    public  Page<UserInfo> findPage(Integer page, Integer size, UserInfoQueryVo userInfoQueryVo) {
+        QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
+
+        Integer status = userInfoQueryVo.getStatus();
+        if (status != null)
+            queryWrapper.eq("status", status);
+
+        Integer authStatus = userInfoQueryVo.getAuthStatus();
+        if (authStatus != null)
+            queryWrapper.eq("auth_status", authStatus);
+
+        String createTimeBegin = userInfoQueryVo.getCreateTimeBegin();
+        if (!StringUtils.isEmpty(createTimeBegin))
+            queryWrapper.gt("create_time", createTimeBegin);
+
+        String createTimeEnd = userInfoQueryVo.getCreateTimeEnd();
+        if (!StringUtils.isEmpty(createTimeEnd))
+            queryWrapper.gt("create_time", createTimeEnd);
+
+        String keyword = userInfoQueryVo.getKeyword();
+        if (!StringUtils.isEmpty(keyword))
+            queryWrapper.and(i -> i.like("name", keyword)
+                    .or().like("nick_name",keyword)
+                    .or().eq("phone", keyword));
+
+      return baseMapper.selectPage(new Page<>(page, size), queryWrapper);
     }
 }
