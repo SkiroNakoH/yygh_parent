@@ -208,6 +208,32 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
                     .or().like("nick_name",keyword)
                     .or().eq("phone", keyword));
 
-      return baseMapper.selectPage(new Page<>(page, size), queryWrapper);
+        Page<UserInfo> pageInfo = baseMapper.selectPage(new Page<>(page, size), queryWrapper);
+        pageInfo.getRecords().forEach(this::packageStatus);
+
+        return pageInfo;
+    }
+
+    //封装用户状态
+    private void packageStatus(UserInfo userInfo) {
+        userInfo.getParam().put("statusString", userInfo.getStatus() == 0 ? "锁定" : "正常");
+
+        switch (userInfo.getAuthStatus()){
+            case 0:
+                userInfo.getParam().put("authStatusString","未认证");
+                break;
+            case 1:
+                userInfo.getParam().put("authStatusString","认证中");
+                break;
+            case 2:
+                userInfo.getParam().put("authStatusString","认证成功");
+                break;
+            case -1:
+                userInfo.getParam().put("authStatusString","认证失败");
+                break;
+            default:
+                userInfo.getParam().put("authStatusString","认证状态出现了不可预计的错误");
+
+        }
     }
 }
