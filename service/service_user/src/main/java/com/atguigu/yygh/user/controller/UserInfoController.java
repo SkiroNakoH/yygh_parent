@@ -96,5 +96,13 @@ public class UserInfoController {
 
         return Result.ok().data(map);
     }
+
+    @ApiOperation("用户信息审批认证")
+    @GetMapping("/approval/{id}/{authStatus}")
+    public Result approval(@PathVariable Long id,
+                           @PathVariable Integer authStatus){
+        userInfoService.approval(id,authStatus);
+        return Result.ok();
+    }
 }
 

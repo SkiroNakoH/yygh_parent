@@ -28,4 +28,6 @@ public interface UserInfoService extends IService<UserInfo> {
     Page<UserInfo>  findPage(Integer page, Integer size, UserInfoQueryVo userInfoQueryVo);
 
     void updateStatus(Long id, Integer status);
+
+    void approval(Long id, Integer authStatus);
 }

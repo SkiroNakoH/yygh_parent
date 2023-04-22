@@ -222,6 +222,14 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         baseMapper.updateById(userInfo);
     }
 
+    @Override
+    public void approval(Long id, Integer authStatus) {
+        UserInfo userInfo = new UserInfo();
+        userInfo.setId(id);
+        userInfo.setAuthStatus(authStatus);
+        baseMapper.updateById(userInfo);
+    }
+
     //封装用户状态
     private void packageStatus(UserInfo userInfo) {
         userInfo.getParam().put("statusString", userInfo.getStatus() == 0 ? "锁定" : "正常");
