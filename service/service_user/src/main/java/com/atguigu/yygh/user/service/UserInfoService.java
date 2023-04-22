@@ -26,4 +26,6 @@ public interface UserInfoService extends IService<UserInfo> {
     void saveUserAuth(Long userId, UserAuthVo userAuthVo);
 
     Page<UserInfo>  findPage(Integer page, Integer size, UserInfoQueryVo userInfoQueryVo);
+
+    void updateStatus(Long id, Integer status);
 }

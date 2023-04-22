@@ -72,5 +72,12 @@ public class UserInfoController {
         return Result.ok().data("pageInfo",pageInfo);
     }
 
+    @ApiOperation("修改用户状态")
+    @GetMapping("/updateStatus/{id}/{status}")
+    public Result updateStatus(@PathVariable Long id,
+                               @PathVariable Integer status){
+        userInfoService.updateStatus(id,status);
+        return Result.ok();
+    }
 }
 

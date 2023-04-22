@@ -183,7 +183,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
     }
 
     @Override
-    public  Page<UserInfo> findPage(Integer page, Integer size, UserInfoQueryVo userInfoQueryVo) {
+    public Page<UserInfo> findPage(Integer page, Integer size, UserInfoQueryVo userInfoQueryVo) {
         QueryWrapper<UserInfo> queryWrapper = new QueryWrapper<>();
 
         Integer status = userInfoQueryVo.getStatus();
@@ -205,7 +205,7 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         String keyword = userInfoQueryVo.getKeyword();
         if (!StringUtils.isEmpty(keyword))
             queryWrapper.and(i -> i.like("name", keyword)
-                    .or().like("nick_name",keyword)
+                    .or().like("nick_name", keyword)
                     .or().eq("phone", keyword));
 
         Page<UserInfo> pageInfo = baseMapper.selectPage(new Page<>(page, size), queryWrapper);
@@ -214,25 +214,33 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
         return pageInfo;
     }
 
+    @Override
+    public void updateStatus(Long id, Integer status) {
+        UserInfo userInfo = new UserInfo();
+        userInfo.setId(id);
+        userInfo.setStatus(status);
+        baseMapper.updateById(userInfo);
+    }
+
     //封装用户状态
     private void packageStatus(UserInfo userInfo) {
         userInfo.getParam().put("statusString", userInfo.getStatus() == 0 ? "锁定" : "正常");
 
-        switch (userInfo.getAuthStatus()){
+        switch (userInfo.getAuthStatus()) {
             case 0:
-                userInfo.getParam().put("authStatusString","未认证");
+                userInfo.getParam().put("authStatusString", "未认证");
                 break;
             case 1:
-                userInfo.getParam().put("authStatusString","认证中");
+                userInfo.getParam().put("authStatusString", "认证中");
                 break;
             case 2:
-                userInfo.getParam().put("authStatusString","认证成功");
+                userInfo.getParam().put("authStatusString", "认证成功");
                 break;
             case -1:
-                userInfo.getParam().put("authStatusString","认证失败");
+                userInfo.getParam().put("authStatusString", "认证失败");
                 break;
             default:
-                userInfo.getParam().put("authStatusString","认证状态出现了不可预计的错误");
+                userInfo.getParam().put("authStatusString", "认证状态出现了不可预计的错误");
 
         }
     }
