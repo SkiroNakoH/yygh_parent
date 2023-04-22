@@ -30,24 +30,26 @@ public class PatientController {
 
     @ApiOperation("通过userId获取就诊人列表")
     @GetMapping("/findAll")
-    public Result findAll(HttpServletRequest request){
+    public Result findAll(HttpServletRequest request) {
         Long userId = AuthInfoUtil.getUserId(request);
         List<Patient> list = patientService.findByUserId(userId);
 
-        return Result.ok().data("list",list);
+        return Result.ok().data("list", list);
     }
 
+    //TODO: 携带userid去实现增删改
     @ApiOperation("获取就诊人信息")
     @GetMapping("/getById/{id}")
-    public Result getById(@PathVariable Long id){
+    public Result getById(@PathVariable Long id) {
+
         Patient patient = patientService.getById(id);
 
-        return Result.ok().data("patient",patient);
+        return Result.ok().data("patient", patient);
     }
 
     @ApiOperation("新增就诊人")
     @PostMapping("/save")
-    public Result save(@RequestBody Patient patient,HttpServletRequest request){
+    public Result save(@RequestBody Patient patient, HttpServletRequest request) {
         Long userId = AuthInfoUtil.getUserId(request);
         patient.setUserId(userId);
         patientService.save(patient);
@@ -57,14 +59,14 @@ public class PatientController {
 
     @ApiOperation("修改就诊人")
     @PutMapping("/update")
-    public Result update(@RequestBody Patient patient){
+    public Result update(@RequestBody Patient patient) {
         patientService.updateById(patient);
         return Result.ok();
     }
 
     @ApiOperation("删除就诊人")
     @DeleteMapping("/remove/{id}")
-    public Result remove(@PathVariable Long id){
+    public Result remove(@PathVariable Long id) {
         patientService.removeById(id);
         return Result.ok();
     }

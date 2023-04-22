@@ -9,8 +9,8 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan("com.atguigu")
 @EnableDiscoveryClient
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
-public class ServiceOosApplication {
+public class ServiceOssApplication {
     public static void main(String[] args) {
-        SpringApplication.run(ServiceOosApplication.class,args);
+        SpringApplication.run(ServiceOssApplication.class,args);
     }
 }
