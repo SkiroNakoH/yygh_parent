@@ -3,7 +3,9 @@ package com.atguigu.yygh.user.controller;
 
 import com.atguigu.yygh.common.utils.Result;
 import com.atguigu.yygh.enums.AuthStatusEnum;
+import com.atguigu.yygh.model.user.Patient;
 import com.atguigu.yygh.model.user.UserInfo;
+import com.atguigu.yygh.user.service.PatientService;
 import com.atguigu.yygh.user.service.UserInfoService;
 import com.atguigu.yygh.user.utils.JwtUtil;
 import com.atguigu.yygh.vo.user.LoginVo;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,7 +36,8 @@ import java.util.Map;
 public class UserInfoController {
     @Autowired
     private UserInfoService userInfoService;
-
+    @Autowired
+    private PatientService patientService;
 
     @ApiOperation("用户登录")
     @PostMapping("login")
@@ -78,6 +82,19 @@ public class UserInfoController {
                                @PathVariable Integer status){
         userInfoService.updateStatus(id,status);
         return Result.ok();
+    }
+
+    @ApiOperation("查看用户详情")
+    @GetMapping("/getById/{id}")
+    public Result getById(@PathVariable Long id){
+        UserInfo userInfo = userInfoService.getById(id);
+        List<Patient> patientList = patientService.findByUserId(id);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("userInfo",userInfo);
+        map.put("patientList",patientList);
+
+        return Result.ok().data(map);
     }
 }
 
