@@ -4,7 +4,7 @@ package com.atguigu.yygh.user.controller;
 import com.atguigu.yygh.common.utils.Result;
 import com.atguigu.yygh.model.user.Patient;
 import com.atguigu.yygh.user.service.PatientService;
-import com.atguigu.yygh.user.utils.AuthInfoUtil;
+import com.atguigu.yygh.user.utils.JwtUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +30,8 @@ public class PatientController {
 
     @ApiOperation("通过userId获取就诊人列表")
     @GetMapping("/findAll")
-    public Result findAll(HttpServletRequest request) {
-        Long userId = AuthInfoUtil.getUserId(request);
+    public Result findAll(@RequestHeader String token) {
+        Long userId = JwtUtil.getUserId(token);
         List<Patient> list = patientService.findByUserId(userId);
 
         return Result.ok().data("list", list);
@@ -49,8 +49,8 @@ public class PatientController {
 
     @ApiOperation("新增就诊人")
     @PostMapping("/save")
-    public Result save(@RequestBody Patient patient, HttpServletRequest request) {
-        Long userId = AuthInfoUtil.getUserId(request);
+    public Result save(@RequestBody Patient patient, @RequestHeader String token) {
+        Long userId = JwtUtil.getUserId(token);
         patient.setUserId(userId);
         patientService.save(patient);
 

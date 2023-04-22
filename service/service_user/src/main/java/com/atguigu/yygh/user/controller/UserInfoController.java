@@ -2,9 +2,10 @@ package com.atguigu.yygh.user.controller;
 
 
 import com.atguigu.yygh.common.utils.Result;
+import com.atguigu.yygh.enums.AuthStatusEnum;
 import com.atguigu.yygh.model.user.UserInfo;
 import com.atguigu.yygh.user.service.UserInfoService;
-import com.atguigu.yygh.user.utils.AuthInfoUtil;
+import com.atguigu.yygh.user.utils.JwtUtil;
 import com.atguigu.yygh.vo.user.LoginVo;
 import com.atguigu.yygh.vo.user.UserAuthVo;
 import io.swagger.annotations.Api;
@@ -12,7 +13,6 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
@@ -40,8 +40,8 @@ public class UserInfoController {
 
     @ApiOperation("用户认证")
     @PostMapping("/auth/saveUserAuth")
-    public Result saveUserAuth(@RequestBody UserAuthVo userAuthVo, HttpServletRequest request){
-        Long userId = AuthInfoUtil.getUserId(request);
+    public Result saveUserAuth(@RequestBody UserAuthVo userAuthVo, @RequestHeader String token){
+        Long userId = JwtUtil.getUserId(token);
         userInfoService.saveUserAuth(userId,userAuthVo);
 
         return Result.ok();
@@ -49,8 +49,13 @@ public class UserInfoController {
 
     @ApiOperation("获取用户认证信息")
     @GetMapping("/auth/getUserInfo")
-    public Result getUserInfo(HttpServletRequest request){
-        UserInfo userInfo = userInfoService.getById(AuthInfoUtil.getUserId(request));
+    public Result getUserInfo(@RequestHeader String token){
+        Long userId = JwtUtil.getUserId(token);
+        UserInfo userInfo = userInfoService.getById(userId);
+        //添加用户状态描述文章
+        String authStatusString = AuthStatusEnum.getStatusNameByStatus(userInfo.getAuthStatus());
+        userInfo.getParam().put("authStatusString",authStatusString);
+
         return Result.ok().data("userInfo",userInfo);
     }
 
