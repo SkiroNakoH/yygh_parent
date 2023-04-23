@@ -195,12 +195,14 @@ public class UserInfoServiceImpl extends ServiceImpl<UserInfoMapper, UserInfo> i
             queryWrapper.eq("auth_status", authStatus);
 
         String createTimeBegin = userInfoQueryVo.getCreateTimeBegin();
-        if (!StringUtils.isEmpty(createTimeBegin))
-            queryWrapper.gt("create_time", createTimeBegin);
+        /*if (!StringUtils.isEmpty(createTimeBegin))
+            queryWrapper.ge("create_time", createTimeBegin);*/
+        queryWrapper.ge(!StringUtils.isEmpty(createTimeBegin),"create_time", createTimeBegin);
 
         String createTimeEnd = userInfoQueryVo.getCreateTimeEnd();
-        if (!StringUtils.isEmpty(createTimeEnd))
-            queryWrapper.gt("create_time", createTimeEnd);
+/*        if (!StringUtils.isEmpty(createTimeEnd))
+            queryWrapper.le("create_time", createTimeEnd);*/
+        queryWrapper.le(!StringUtils.isEmpty(createTimeEnd),"create_time", createTimeEnd);
 
         String keyword = userInfoQueryVo.getKeyword();
         if (!StringUtils.isEmpty(keyword))

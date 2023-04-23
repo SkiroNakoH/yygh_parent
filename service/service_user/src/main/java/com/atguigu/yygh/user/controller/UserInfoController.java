@@ -77,7 +77,7 @@ public class UserInfoController {
     }
 
     @ApiOperation("修改用户状态")
-    @GetMapping("/updateStatus/{id}/{status}")
+    @PutMapping("/updateStatus/{id}/{status}")
     public Result updateStatus(@PathVariable Long id,
                                @PathVariable Integer status){
         userInfoService.updateStatus(id,status);

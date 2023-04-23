@@ -1,13 +1,17 @@
 package com.atguigu.yygh.hosp.service.impl;
 
 import com.atguigu.yygh.hosp.repository.ScheduleRepository;
+import com.atguigu.yygh.hosp.service.HospitalService;
 import com.atguigu.yygh.hosp.service.ScheduleService;
+import com.atguigu.yygh.model.hosp.BookingRule;
 import com.atguigu.yygh.model.hosp.Department;
+import com.atguigu.yygh.model.hosp.Hospital;
 import com.atguigu.yygh.model.hosp.Schedule;
 import com.atguigu.yygh.vo.hosp.BookingScheduleRuleVo;
 import com.atguigu.yygh.vo.hosp.ScheduleQueryVo;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+import org.joda.time.format.DateTimeFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -33,6 +37,8 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Autowired
     private MongoTemplate mongoTemplate;
+    @Autowired
+    private HospitalService hospitalService;
 
     //排班新增或修改
     @Override
@@ -144,6 +150,49 @@ public class ScheduleServiceImpl implements ScheduleService {
         return mongoTemplate.find(query, Schedule.class);
     }
 
+    //获取可预约排班数据
+    @Override
+
+    public Map<String, Object> getBookingScheduleRule(Integer page, Integer size, String hoscode, String depcode) {
+       Map<String,Object> map = new HashMap<>();
+   /*   Deprecated: 分页数据需要自己创建
+       //查看总数
+        Query query = new Query(Criteria.where("hoscode").is(hoscode).and("depcode").is(depcode));
+        long total = mongoTemplate.count(query, Schedule.class);
+        map.put("total",total); */
+
+        //查看医院信息，找出医院预约规则
+        Hospital hospital = hospitalService.getByHoscode(hoscode);
+        BookingRule bookingRule = hospital.getBookingRule();
+
+        //1. 日期列表>>>>>>>>查看医院规则中的cycle
+        Map<String,Object> dateListmap = createDateList(page,size,bookingRule);
+
+        //TODO: 科室信息
+        return map;
+    }
+
+    //根据预约规则创建日期列表，并分页
+    private Map<String, Object> createDateList(Integer page, Integer size, BookingRule bookingRule) {
+        //获取可预约的天数
+        Integer cycle = bookingRule.getCycle();
+
+        //判断预约天数是否+1
+        String stopTimeString = bookingRule.getStopTime();
+        String stopDateString = new DateTime().toString("yyyy-MM-dd ")+stopTimeString;
+        DateTime stopTime = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").parseDateTime(stopDateString);
+
+        if(stopTime.isBefore(new DateTime()))
+            cycle++;
+
+        List<Date> dateList = new ArrayList<>();
+        //循环cycle，造时间
+        for (Integer i = 0; i < cycle; i++) {
+          dateList.add(new DateTime().plus(i).toDate());
+        }
+
+        return null;
+    }
 
 
     /**

@@ -37,7 +37,6 @@ public class PatientController {
         return Result.ok().data("list", list);
     }
 
-    //TODO: 携带userid去实现增删改
     @ApiOperation("获取就诊人信息")
     @GetMapping("/getById/{id}")
     public Result getById(@PathVariable Long id) {

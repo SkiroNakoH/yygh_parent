@@ -49,4 +49,17 @@ public class ScheduleController {
         return Result.ok().data("list", list);
     }
 
+
+    @ApiOperation("获取可预约排班数据")
+    @GetMapping("/getBookingScheduleRule/{page}/{size}/{hoscode}/{depcode}")
+    public Result getBookingScheduleRule(
+            @PathVariable Integer page,
+            @PathVariable Integer size,
+            @PathVariable String hoscode,
+            @PathVariable String depcode
+    ){
+        Map<String,Object> map = scheduleService.getBookingScheduleRule(page,size,hoscode,depcode);
+        return Result.ok().data(map);
+    }
+
 }
