@@ -26,6 +26,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 排班服务
@@ -166,9 +167,73 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         //1. 日期列表>>>>>>>>查看医院规则中的cycle
         Map<String, Object> dateListmap = createDateList(page, size, bookingRule);
+        Integer total = (Integer) dateListmap.get("total");
+        //2.查看预约时间内的排班信息>>>>>>>>>>>
+        List<Date> dateList = (List<Date>) dateListmap.get("list");
+        //查看预约时间内的排班Vo信息
+        List<BookingScheduleRuleVo> bookingScheduleRuleVoList = getBookingScheduleRuleVos(hoscode, depcode, dateList);
 
+        //将vo转换为map, ->  key:date  ,value: BookingScheduleRuleVo
+        Map<Date, BookingScheduleRuleVo> voMap = bookingScheduleRuleVoList.stream().collect(Collectors.toMap(BookingScheduleRuleVo::getWorkDate, bookingScheduleRuleVo -> bookingScheduleRuleVo));
+
+        //响应的时间列表
+        List<BookingScheduleRuleVo> list = new ArrayList<>();
+        //当天挂号状态
+        for (int i = 0; i < dateList.size(); i++) {
+            Date date = dateList.get(i);
+            BookingScheduleRuleVo bookingScheduleRuleVo = voMap.get(date);
+
+            //判断当天是否无号
+            if (bookingScheduleRuleVo == null) {
+                bookingScheduleRuleVo = new BookingScheduleRuleVo();
+                bookingScheduleRuleVo.setWorkDate(date);
+                bookingScheduleRuleVo.setAvailableNumber(-1); //-1表示无号
+            }
+            //设置周几
+            bookingScheduleRuleVo.setDayOfWeek(getDayOfWeek(new DateTime(date)));
+
+            //所有状态设为正常 (value = "状态 0：正常 1：即将放号 -1：当天已停止挂号")
+            bookingScheduleRuleVo.setStatus(0);
+
+            //判断今日是否过时
+            if (page == 1 && i == 0) {
+                if (getStopDateTime(bookingRule).isBeforeNow()) {
+                    //当天已停止挂号
+                    bookingScheduleRuleVo.setStatus(-1);
+                }
+            }
+
+            //最后一天设置即将放号
+            if (page == (total % size > 0 ? total / size + 1 : total / size) && i == dateList.size() - 1)
+                bookingScheduleRuleVo.setStatus(1);
+
+            list.add(bookingScheduleRuleVo);
+        }
+
+        System.out.println("list = " + list);
         //TODO: 科室信息
+
         return null;
+    }
+
+    //查看预约时间内的排班Vo信息
+    private List<BookingScheduleRuleVo> getBookingScheduleRuleVos(String hoscode, String depcode, List<Date> dateList) {
+        //条件查询，按医院编号，科室编号，日期查询
+        Criteria criteria = Criteria.where("hoscode").is(hoscode)
+                .and("depcode").is(depcode)
+                .and("workDate").in(dateList);
+        //聚合函数，计算当天可以预约数和剩余预约数
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(criteria),
+                Aggregation.group("workDate")
+                        .first("workDate").as("workDate")
+                        .sum("reservedNumber").as("reservedNumber")
+                        .sum("availableNumber").as("availableNumber")
+        );
+        AggregationResults<BookingScheduleRuleVo> bookingScheduleRuleVoAggregationResults =
+                mongoTemplate.aggregate(aggregation, Schedule.class, BookingScheduleRuleVo.class);
+
+        return bookingScheduleRuleVoAggregationResults.getMappedResults();
     }
 
     //根据预约规则创建日期列表，并分页
@@ -196,7 +261,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         int start = (page - 1) * size; //开始下标
         int end = start + size - 1; //结束下标
 
-        if(end > dateList.size() - 1)
+        if (end > dateList.size() - 1)
             end = dateList.size() - 1;
 
         //分页日期
@@ -205,9 +270,9 @@ public class ScheduleServiceImpl implements ScheduleService {
             pageList.add(dateList.get(i));
         }
 
-       Map<String, Object> map = new HashMap<>();
-        map.put("total",dateList.size()); //总数
-        map.put("list",pageList);   //分页后列表
+        Map<String, Object> map = new HashMap<>();
+        map.put("total", dateList.size()); //总数
+        map.put("list", pageList);   //分页后列表
 
         return map;
     }
