@@ -215,21 +215,36 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         //封装日期信息和科室信息>>>>>>>>>
         Map<String, Object> baseMap = new HashMap<>();
-        baseMap.put("hosname",hospital.getHosname());
+        baseMap.put("hosname", hospital.getHosname());
 
         Department department = departmentRepository.findByHoscodeAndDepcode(hoscode, depcode);
-        baseMap.put("bigname",department.getBigname());
-        baseMap.put("depname",department.getDepcode());
+        baseMap.put("bigname", department.getBigname());
+        baseMap.put("depname", department.getDepcode());
 
         //放号时间
-        baseMap.put("releaseTime",bookingRule.getReleaseTime());
+        baseMap.put("releaseTime", bookingRule.getReleaseTime());
 
-       Map<String, Object> map = new HashMap<>();
-        map.put("total",total);
-        map.put("list",list);
-        map.put("baseMap",baseMap);
+        Map<String, Object> map = new HashMap<>();
+        map.put("total", total);
+        map.put("list", list);
+        map.put("baseMap", baseMap);
 
         return map;
+    }
+
+    @Override
+    public Schedule getByScheduleId(String id) {
+        Schedule schedule = scheduleRepository.findById(id).get();
+
+        //封装数据
+        DateTime dateTime = new DateTime(schedule.getWorkDate());
+        String hoscode = schedule.getHoscode();
+        String depcode = schedule.getDepcode();
+
+        schedule.getParam().put("dayOfWeek", getDayOfWeek(dateTime));
+        schedule.getParam().put("hosname", hospitalService.getByHoscode(hoscode).getHosname());
+        schedule.getParam().put("depname", departmentRepository.findByHoscodeAndDepcode(hoscode, depcode).getDepname());
+        return schedule;
     }
 
     //查看预约时间内的排班Vo信息

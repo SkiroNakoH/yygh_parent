@@ -62,4 +62,11 @@ public class ScheduleController {
         return Result.ok().data(map);
     }
 
+    @ApiOperation("根据id获取排班信息")
+    @GetMapping("/getByScheduleId/{id}")
+    public Result getByScheduleId(@PathVariable String id){
+        Schedule schedule = scheduleService.getByScheduleId(id);
+        return Result.ok().data("schedule",schedule);
+    }
+
 }
