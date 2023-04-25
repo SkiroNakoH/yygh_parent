@@ -39,7 +39,7 @@ public class BookingScheduleRuleVo {
 	private Integer reservedNumber;
 
 	@ApiModelProperty(value = "科室剩余预约数")
-	private Integer availableNumber;
+	private Integer availableNumber;	//-1表示无号
 
 	@ApiModelProperty(value = "状态 0：正常 1：即将放号 -1：当天已停止挂号")
 	private Integer status;

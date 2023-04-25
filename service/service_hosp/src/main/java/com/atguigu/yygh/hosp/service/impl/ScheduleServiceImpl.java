@@ -154,7 +154,6 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
 
     public Map<String, Object> getBookingScheduleRule(Integer page, Integer size, String hoscode, String depcode) {
-       Map<String,Object> map = new HashMap<>();
    /*   Deprecated: 分页数据需要自己创建
        //查看总数
         Query query = new Query(Criteria.where("hoscode").is(hoscode).and("depcode").is(depcode));
@@ -166,10 +165,10 @@ public class ScheduleServiceImpl implements ScheduleService {
         BookingRule bookingRule = hospital.getBookingRule();
 
         //1. 日期列表>>>>>>>>查看医院规则中的cycle
-        Map<String,Object> dateListmap = createDateList(page,size,bookingRule);
+        Map<String, Object> dateListmap = createDateList(page, size, bookingRule);
 
         //TODO: 科室信息
-        return map;
+        return null;
     }
 
     //根据预约规则创建日期列表，并分页
@@ -177,30 +176,53 @@ public class ScheduleServiceImpl implements ScheduleService {
         //获取可预约的天数
         Integer cycle = bookingRule.getCycle();
 
-        //判断预约天数是否+1
-        String stopTimeString = bookingRule.getStopTime();
-        String stopDateString = new DateTime().toString("yyyy-MM-dd ")+stopTimeString;
-        DateTime stopTime = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").parseDateTime(stopDateString);
+        //判断当天是否超过停止放号时间
+        DateTime stopTime = getStopDateTime(bookingRule);
 
-        if(stopTime.isBefore(new DateTime()))
+        if (stopTime.isBefore(new DateTime()))
             cycle++;
 
+        //医院规则放号总日期
         List<Date> dateList = new ArrayList<>();
         //循环cycle，造时间
         for (Integer i = 0; i < cycle; i++) {
-          dateList.add(new DateTime().plus(i).toDate());
+            //时间仅需yyyy-MM-dd
+            DateTime dateTime = new DateTime().plusDays(i);
+            String dateString = dateTime.toString("yyyy-MM-dd");
+            dateList.add(new DateTime(dateString).toDate());
         }
 
-        return null;
+        //分页医院放号日期
+        int start = (page - 1) * size; //开始下标
+        int end = start + size - 1; //结束下标
+
+        if(end > dateList.size() - 1)
+            end = dateList.size() - 1;
+
+        //分页日期
+        ArrayList<Date> pageList = new ArrayList<>();
+        for (int i = start; i < end; i++) {
+            pageList.add(dateList.get(i));
+        }
+
+       Map<String, Object> map = new HashMap<>();
+        map.put("total",dateList.size()); //总数
+        map.put("list",pageList);   //分页后列表
+
+        return map;
+    }
+
+    //判断当天是否超过停止放号时间
+    private static DateTime getStopDateTime(BookingRule bookingRule) {
+        //判断预约天数是否+1
+        String stopTimeString = bookingRule.getStopTime();
+        String stopDateString = new DateTime().toString("yyyy-MM-dd ") + stopTimeString;
+        DateTime stopTime = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").parseDateTime(stopDateString);
+        return stopTime;
     }
 
 
-    /**
-     * 根据日期获取周几数据
-     *
-     * @param dateTime
-     * @return
-     */
+    //根据日期获取周几数据
     private String getDayOfWeek(DateTime dateTime) {
         String dayOfWeek = "";
         switch (dateTime.getDayOfWeek()) {
