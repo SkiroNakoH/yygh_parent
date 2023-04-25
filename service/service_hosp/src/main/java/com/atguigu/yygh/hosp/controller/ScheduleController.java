@@ -50,7 +50,7 @@ public class ScheduleController {
     }
 
 
-    @ApiOperation("获取可预约排班数据")
+    @ApiOperation("分页查询-对前端")
     @GetMapping("/getBookingScheduleRule/{page}/{size}/{hoscode}/{depcode}")
     public Result getBookingScheduleRule(
             @PathVariable Integer page,

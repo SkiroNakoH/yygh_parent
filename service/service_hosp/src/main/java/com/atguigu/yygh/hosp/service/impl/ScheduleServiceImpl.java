@@ -1,5 +1,6 @@
 package com.atguigu.yygh.hosp.service.impl;
 
+import com.atguigu.yygh.hosp.repository.DepartmentRepository;
 import com.atguigu.yygh.hosp.repository.ScheduleRepository;
 import com.atguigu.yygh.hosp.service.HospitalService;
 import com.atguigu.yygh.hosp.service.ScheduleService;
@@ -40,6 +41,8 @@ public class ScheduleServiceImpl implements ScheduleService {
     private MongoTemplate mongoTemplate;
     @Autowired
     private HospitalService hospitalService;
+    @Autowired
+    private DepartmentRepository departmentRepository;
 
     //排班新增或修改
     @Override
@@ -210,10 +213,23 @@ public class ScheduleServiceImpl implements ScheduleService {
             list.add(bookingScheduleRuleVo);
         }
 
-        System.out.println("list = " + list);
-        //TODO: 科室信息
+        //封装日期信息和科室信息>>>>>>>>>
+        Map<String, Object> baseMap = new HashMap<>();
+        baseMap.put("hosname",hospital.getHosname());
 
-        return null;
+        Department department = departmentRepository.findByHoscodeAndDepcode(hoscode, depcode);
+        baseMap.put("bigname",department.getBigname());
+        baseMap.put("depname",department.getDepcode());
+
+        //放号时间
+        baseMap.put("releaseTime",bookingRule.getReleaseTime());
+
+       Map<String, Object> map = new HashMap<>();
+        map.put("total",total);
+        map.put("list",list);
+        map.put("baseMap",baseMap);
+
+        return map;
     }
 
     //查看预约时间内的排班Vo信息
