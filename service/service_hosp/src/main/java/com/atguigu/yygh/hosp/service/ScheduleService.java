@@ -4,6 +4,7 @@ import com.atguigu.yygh.model.hosp.Schedule;
 import com.atguigu.yygh.vo.hosp.BookingScheduleRuleVo;
 import com.atguigu.yygh.vo.hosp.ScheduleOrderVo;
 import com.atguigu.yygh.vo.hosp.ScheduleQueryVo;
+import com.atguigu.yygh.vo.order.OrderMqVo;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -26,4 +27,6 @@ public interface ScheduleService {
     Schedule getByScheduleId(String id);
 
     ScheduleOrderVo getById4Feign(String id);
+
+    void updateSubscribe(OrderMqVo orderMqVo);
 }

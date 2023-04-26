@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.atguigu</groupId>
-        <artifactId>service</artifactId>
+        <artifactId>common</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>service_order</artifactId>
+    <artifactId>rabbit_utils</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -18,22 +18,10 @@
     </properties>
 
     <dependencies>
+        <!--rabbitmq消息队列-->
         <dependency>
-            <groupId>com.atguigu</groupId>
-            <artifactId>service_user_client</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.atguigu</groupId>
-            <artifactId>service_hosp_client</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-<!--        rabbitmq工具类-->
-        <dependency>
-            <groupId>com.atguigu</groupId>
-            <artifactId>rabbit_utils</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bus-amqp</artifactId>
         </dependency>
     </dependencies>
 </project>

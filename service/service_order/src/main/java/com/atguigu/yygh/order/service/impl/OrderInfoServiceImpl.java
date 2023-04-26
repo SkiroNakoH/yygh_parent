@@ -6,16 +6,21 @@ import com.atguigu.yygh.common.utils.ResultCode;
 import com.atguigu.yygh.enums.OrderStatusEnum;
 import com.atguigu.yygh.hosp.client.HospFeignClient;
 import com.atguigu.yygh.model.hosp.HospitalSet;
+import com.atguigu.yygh.model.hosp.Schedule;
 import com.atguigu.yygh.model.order.OrderInfo;
 import com.atguigu.yygh.model.user.Patient;
 import com.atguigu.yygh.order.mapper.OrderInfoMapper;
 import com.atguigu.yygh.order.service.OrderInfoService;
 import com.atguigu.yygh.order.utils.HttpRequestHelper;
+import com.atguigu.yygh.redis.constants.MqConst;
 import com.atguigu.yygh.user.client.PatientFeignClient;
 import com.atguigu.yygh.vo.hosp.ScheduleOrderVo;
+import com.atguigu.yygh.vo.hosp.ScheduleQueryVo;
+import com.atguigu.yygh.vo.order.OrderMqVo;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.joda.time.DateTime;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,6 +43,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     private HospFeignClient hospFeignClient;
     @Autowired
     private PatientFeignClient patientFeignClient;
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Override
     public Long subscribeOrder(String scheduleId, Long patientId) {
@@ -109,7 +116,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         orderInfo.setOutTradeNo(IdWorker.getIdStr());
 
         //填写科室相关信息
-        BeanUtils.copyProperties(scheduleOrderVo,orderInfo);
+        BeanUtils.copyProperties(scheduleOrderVo, orderInfo);
         //就诊人相关信息
         orderInfo.setPatientId(patientId);
         orderInfo.setPatientName(patient.getName());
@@ -124,7 +131,13 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         //创建订单
         baseMapper.insert(orderInfo);
 
-        //todo：rabbitMq异步处理>>>> 更新排班数据, 修改剩余预约数量
+        //rabbitMq异步处理-更新排班数据, 修改剩余预约数量和总预约数
+        OrderMqVo orderMqVo = new OrderMqVo();
+        orderMqVo.setReservedNumber(reservedNumber);
+        orderMqVo.setAvailableNumber(availableNumber);
+        orderMqVo.setScheduleId(scheduleId);
+        //路由模式，发送消息
+        rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_ORDER,MqConst.ROUTING_ORDER,orderMqVo);
 
         //todo: rabbitMq异步处理>>>> 发送预约成功的通知短信给就诊人
 

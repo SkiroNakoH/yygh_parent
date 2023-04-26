@@ -9,6 +9,7 @@ import com.atguigu.yygh.model.hosp.*;
 import com.atguigu.yygh.vo.hosp.BookingScheduleRuleVo;
 import com.atguigu.yygh.vo.hosp.ScheduleOrderVo;
 import com.atguigu.yygh.vo.hosp.ScheduleQueryVo;
+import com.atguigu.yygh.vo.order.OrderMqVo;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.format.DateTimeFormat;
@@ -285,6 +286,18 @@ public class ScheduleServiceImpl implements ScheduleService {
         scheduleOrderVo.setAmount(schedule.getAmount());
         scheduleOrderVo.setQuitTime(quitDateTime);
         return scheduleOrderVo;
+    }
+
+    //更新预约成功后，剩余预约数和总预约数的数据
+    @Override
+    public void updateSubscribe(OrderMqVo orderMqVo) {
+
+        Query query = new Query(Criteria.where("_id").is(orderMqVo.getScheduleId()));
+
+        Update update = new Update()
+                .set("reservedNumber",orderMqVo.getReservedNumber())
+                .set("availableNumber",orderMqVo.getAvailableNumber());
+        mongoTemplate.upsert(query, update,Schedule.class);
     }
 
     //查看预约时间内的排班Vo信息
