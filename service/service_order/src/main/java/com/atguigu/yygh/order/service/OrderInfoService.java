@@ -13,4 +13,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface OrderInfoService extends IService<OrderInfo> {
 
+    Long subscribeOrder(String scheduleId,Long patientId);
 }

@@ -131,5 +131,10 @@ public class HospitalSetController {
         return Result.error();
     }
 
+    @ApiOperation("根据hoscode查询医院")
+    @GetMapping("/getByHosCode/{hoscode}")
+    public HospitalSet getByHosCode(@PathVariable String hoscode) {
+        return hospitalSetService.getByHosCode(hoscode);
+    }
 }
 

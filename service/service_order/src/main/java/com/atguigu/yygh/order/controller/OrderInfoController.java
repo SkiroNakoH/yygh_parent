@@ -1,10 +1,13 @@
 package com.atguigu.yygh.order.controller;
 
 
+import com.atguigu.yygh.common.utils.Result;
+import com.atguigu.yygh.order.service.OrderInfoService;
+import com.atguigu.yygh.order.service.impl.OrderInfoServiceImpl;
 import io.swagger.annotations.Api;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import org.springframework.web.bind.annotation.RestController;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * <p>
@@ -19,6 +22,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/order/orderInfo")
 public class OrderInfoController {
 
+    @Autowired
+    private OrderInfoService orderInfoService;
+
+    @ApiOperation("预约下单")
+    @PostMapping("/subscribeOrder/{scheduleId}/{patientId}")
+    public Result subscribeOrder(@PathVariable String scheduleId,@PathVariable Long patientId){
+       Long orderId =  orderInfoService.subscribeOrder(scheduleId,patientId);
+        return Result.ok().data("orderId",orderId);
+    }
 
 }
 

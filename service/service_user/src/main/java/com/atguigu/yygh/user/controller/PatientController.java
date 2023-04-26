@@ -46,6 +46,12 @@ public class PatientController {
         return Result.ok().data("patient", patient);
     }
 
+    @ApiOperation("服务调用-获取就诊人信息")
+    @GetMapping("/feign/getById/{id}")
+    public Patient getById4Feign(@PathVariable Long id) {
+        return patientService.getById(id);
+    }
+
     @ApiOperation("新增就诊人")
     @PostMapping("/save")
     public Result save(@RequestBody Patient patient, @RequestHeader String token) {

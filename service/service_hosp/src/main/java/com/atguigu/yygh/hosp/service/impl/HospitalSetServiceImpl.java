@@ -22,10 +22,14 @@ public class HospitalSetServiceImpl extends ServiceImpl<HospitalSetMapper, Hospi
     //根据医院编码，查询签名
     @Override
     public String getSignKeyByHosCode(String hoscode) {
+        HospitalSet hospitalSet = getByHosCode(hoscode);
+        return hospitalSet.getSignKey();
+    }
 
+    @Override
+    public HospitalSet getByHosCode(String hoscode) {
         QueryWrapper<HospitalSet> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("hoscode",hoscode);
-        HospitalSet hospitalSet = baseMapper.selectOne(queryWrapper);
-        return hospitalSet.getSignKey();
+        return  baseMapper.selectOne(queryWrapper);
     }
 }

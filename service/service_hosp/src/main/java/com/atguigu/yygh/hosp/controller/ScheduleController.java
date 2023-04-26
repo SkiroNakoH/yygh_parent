@@ -69,4 +69,11 @@ public class ScheduleController {
         return Result.ok().data("schedule",schedule);
     }
 
+    //param 包含 signKey,apiUrl
+    @ApiOperation("服务调用-根据id获取排班信息")
+    @GetMapping("/getById4Feign/{id}")
+    public ScheduleOrderVo getById4Feign(@PathVariable String id){
+        return scheduleService.getById4Feign(id);
+    }
+
 }

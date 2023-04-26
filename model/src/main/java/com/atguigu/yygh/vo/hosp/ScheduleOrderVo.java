@@ -24,6 +24,9 @@ public class ScheduleOrderVo {
 	@ApiModelProperty(value = "科室名称")
 	private String depname;
 
+	@ApiModelProperty(value = "排班编号（预约平台的排班主键）")
+	private String scheduleId;
+
 	@ApiModelProperty(value = "排班编号（医院自己的排班主键）")
 	private String hosScheduleId;
 

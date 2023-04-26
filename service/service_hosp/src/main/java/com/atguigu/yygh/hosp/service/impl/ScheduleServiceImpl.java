@@ -3,12 +3,11 @@ package com.atguigu.yygh.hosp.service.impl;
 import com.atguigu.yygh.hosp.repository.DepartmentRepository;
 import com.atguigu.yygh.hosp.repository.ScheduleRepository;
 import com.atguigu.yygh.hosp.service.HospitalService;
+import com.atguigu.yygh.hosp.service.HospitalSetService;
 import com.atguigu.yygh.hosp.service.ScheduleService;
-import com.atguigu.yygh.model.hosp.BookingRule;
-import com.atguigu.yygh.model.hosp.Department;
-import com.atguigu.yygh.model.hosp.Hospital;
-import com.atguigu.yygh.model.hosp.Schedule;
+import com.atguigu.yygh.model.hosp.*;
 import com.atguigu.yygh.vo.hosp.BookingScheduleRuleVo;
+import com.atguigu.yygh.vo.hosp.ScheduleOrderVo;
 import com.atguigu.yygh.vo.hosp.ScheduleQueryVo;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
@@ -43,6 +42,9 @@ public class ScheduleServiceImpl implements ScheduleService {
     private HospitalService hospitalService;
     @Autowired
     private DepartmentRepository departmentRepository;
+
+    @Autowired
+    private HospitalSetService hospitalSetService;
 
     //排班新增或修改
     @Override
@@ -245,6 +247,44 @@ public class ScheduleServiceImpl implements ScheduleService {
         schedule.getParam().put("hosname", hospitalService.getByHoscode(hoscode).getHosname());
         schedule.getParam().put("depname", departmentRepository.findByHoscodeAndDepcode(hoscode, depcode).getDepname());
         return schedule;
+    }
+
+    @Override
+    public ScheduleOrderVo getById4Feign(String id) {
+        Schedule schedule = scheduleRepository.findById(id).get();
+
+        String hoscode = schedule.getHoscode();
+        String depcode = schedule.getDepcode();
+
+        Hospital hospital = hospitalService.getByHoscode(hoscode);
+        BookingRule bookingRule = hospital.getBookingRule();
+        String hosname = hospital.getHosname();
+        String depname = departmentRepository.findByHoscodeAndDepcode(hoscode, depcode).getDepname();
+
+        //设置退号时间
+        //退号日期  -1
+        Integer quitDayInt = bookingRule.getQuitDay();
+        String quitTimeStr = bookingRule.getQuitTime();
+        //组装
+        DateTime quiteDate = new DateTime(schedule.getWorkDate()).plusDays(quitDayInt);
+        String quitDateTimeStr = quiteDate.toString("yyyy-MM-dd ") + quitTimeStr;
+        Date quitDateTime = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").parseDateTime(quitDateTimeStr).toDate();
+
+        //封装数据到 ScheduleOrderVo 对象中返回
+        ScheduleOrderVo scheduleOrderVo = new ScheduleOrderVo();
+        scheduleOrderVo.setHoscode(hoscode);
+        scheduleOrderVo.setHosname(hosname);
+        scheduleOrderVo.setDepcode(depcode);
+        scheduleOrderVo.setDepname(depname);
+        scheduleOrderVo.setScheduleId(id); //预约平台的排班编号
+        scheduleOrderVo.setHosScheduleId(schedule.getHosScheduleId()); //医院系统的排班id
+        scheduleOrderVo.setTitle(schedule.getTitle());
+        scheduleOrderVo.setReserveDate(schedule.getWorkDate());
+        scheduleOrderVo.setReserveTime(schedule.getWorkTime());
+        scheduleOrderVo.setAvailableNumber(schedule.getAvailableNumber());
+        scheduleOrderVo.setAmount(schedule.getAmount());
+        scheduleOrderVo.setQuitTime(quitDateTime);
+        return scheduleOrderVo;
     }
 
     //查看预约时间内的排班Vo信息
