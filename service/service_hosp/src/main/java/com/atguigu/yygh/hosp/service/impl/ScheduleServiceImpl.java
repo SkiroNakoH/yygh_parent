@@ -296,7 +296,8 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         Update update = new Update()
                 .set("reservedNumber",orderMqVo.getReservedNumber())
-                .set("availableNumber",orderMqVo.getAvailableNumber());
+                .set("availableNumber",orderMqVo.getAvailableNumber())
+                .set("updateTime",new Date());
         mongoTemplate.upsert(query, update,Schedule.class);
     }
 
