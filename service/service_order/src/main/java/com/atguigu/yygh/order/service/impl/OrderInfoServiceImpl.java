@@ -3,6 +3,7 @@ package com.atguigu.yygh.order.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.atguigu.yygh.common.exception.YYGHException;
 import com.atguigu.yygh.common.utils.ResultCode;
+import com.atguigu.yygh.enums.OrderStatusEnum;
 import com.atguigu.yygh.hosp.client.HospFeignClient;
 import com.atguigu.yygh.model.hosp.HospitalSet;
 import com.atguigu.yygh.model.order.OrderInfo;
@@ -12,8 +13,10 @@ import com.atguigu.yygh.order.service.OrderInfoService;
 import com.atguigu.yygh.order.utils.HttpRequestHelper;
 import com.atguigu.yygh.user.client.PatientFeignClient;
 import com.atguigu.yygh.vo.hosp.ScheduleOrderVo;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -100,11 +103,31 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         String fetchAddress = jsonObject.getString("fetchAddress");  //取号地址
 
         //todo: 记录信息到预约平台订单表order_info
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setUserId(patient.getUserId());
+        //雪花算法生成订单交易号
+        orderInfo.setOutTradeNo(IdWorker.getIdStr());
+
+        //填写科室相关信息
+        BeanUtils.copyProperties(scheduleOrderVo,orderInfo);
+        //就诊人相关信息
+        orderInfo.setPatientId(patientId);
+        orderInfo.setPatientName(patient.getName());
+        orderInfo.setPatientPhone(patient.getPhone());
+        //医院系统响应数据
+        orderInfo.setHosRecordId(hosRecordId);
+        orderInfo.setNumber(number);
+        orderInfo.setFetchTime(fetchTime);
+        orderInfo.setFetchAddress(fetchAddress);
+        //设置订单状态 -->    0,"预约成功，待支付"
+        orderInfo.setOrderStatus(OrderStatusEnum.UNPAID.getStatus());
+        //创建订单
+        baseMapper.insert(orderInfo);
 
         //todo：rabbitMq异步处理>>>> 更新排班数据, 修改剩余预约数量
 
         //todo: rabbitMq异步处理>>>> 发送预约成功的通知短信给就诊人
 
-        return null;
+        return orderInfo.getId();
     }
 }
