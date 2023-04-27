@@ -1,5 +1,6 @@
 package com.atguigu.yygh.hosp.client;
 
+import com.atguigu.yygh.model.hosp.Hospital;
 import com.atguigu.yygh.model.hosp.HospitalSet;
 import com.atguigu.yygh.vo.hosp.ScheduleOrderVo;
 import io.swagger.annotations.ApiOperation;
@@ -21,4 +22,8 @@ public interface HospFeignClient {
     @ApiOperation("根据hoscode查询医院")
     @GetMapping("/admin/hosp/hospitalSet/getByHosCode/{hoscode}")
     public HospitalSet getByHosCode(@PathVariable("hoscode") String hoscode);
+
+    @ApiOperation("服务调用-获取医院详细地址")
+    @GetMapping("/admin/hosp/hospital/getHospByHoscode4Feign/{hoscode}")
+    public Hospital getHospByHoscode4Feign(@PathVariable("hoscode") String hoscode);
 }

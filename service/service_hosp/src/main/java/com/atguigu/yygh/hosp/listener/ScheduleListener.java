@@ -22,6 +22,5 @@ public class ScheduleListener {
     ))
     public void updateSchedule(OrderMqVo orderMqVo){
         scheduleService.updateSubscribe(orderMqVo);
-
     }
 }

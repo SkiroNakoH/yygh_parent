@@ -76,4 +76,10 @@ public class HospitalController {
         return Result.ok().data("hospital", hospital);
     }
 
+    @ApiOperation("服务调用-获取医院详细地址")
+    @GetMapping("/getHospByHoscode4Feign/{hoscode}")
+    public Hospital getHospByHoscode4Feign(@PathVariable String hoscode) {
+        return hospitalService.getHospByHoscode(hoscode);
+    }
+
 }

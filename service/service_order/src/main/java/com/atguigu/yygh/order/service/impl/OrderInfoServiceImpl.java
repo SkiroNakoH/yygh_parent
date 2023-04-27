@@ -17,6 +17,7 @@ import com.atguigu.yygh.user.client.PatientFeignClient;
 import com.atguigu.yygh.vo.hosp.ScheduleOrderVo;
 import com.atguigu.yygh.vo.hosp.ScheduleQueryVo;
 import com.atguigu.yygh.vo.order.OrderMqVo;
+import com.atguigu.yygh.vo.sms.SmsVo;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.joda.time.DateTime;
@@ -137,9 +138,56 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         orderMqVo.setAvailableNumber(availableNumber);
         orderMqVo.setScheduleId(scheduleId);
         //路由模式，发送消息
-        rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_ORDER,MqConst.ROUTING_ORDER,orderMqVo);
+        rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_ORDER, MqConst.ROUTING_ORDER, orderMqVo);
 
-        //todo: rabbitMq异步处理>>>> 发送预约成功的通知短信给就诊人
+        //rabbitMq异步处理>>>> 发送预约成功的通知短信给就诊人
+        SmsVo smsVo = new SmsVo();
+        smsVo.setPhone(orderInfo.getPatientPhone());
+
+        /*        HashMap<String, Object> map = new HashMap<>();
+//        param.put("title", orderInfo.getHosname() + "|" + orderInfo.getDepname() + "|" + orderInfo.getTitle());    //排班信息
+//        param.put("takeNumber", orderInfo.getFetchTime() + "在" + orderInfo.getFetchAddress() + "处取号");   //取号信息
+        //医院相关信息
+        map.put("hosname", orderInfo.getHosname());
+        map.put("depname", orderInfo.getDepname());
+        map.put("title", orderInfo.getTitle());    //医生职位
+        //取号相关信息
+        map.put("fetchTime", orderInfo.getFetchTime());//建议取号时间
+        map.put("fetchAddress", orderInfo.getFetchAddress());//建议取号地址
+        map.put("amount", orderInfo.getAmount());//费用
+        map.put("patientName", orderInfo.getPatientName());//就诊人姓名
+        map.put("quitTime", orderInfo.getQuitTime());  //退号时间*/
+
+        //短信变量不能超过12个
+       /* String[] param = {
+                orderInfo.getPatientName(),
+                orderInfo.getHosname() + "医院" + orderInfo.getDepname() + "科室的" + orderInfo.getTitle(),
+                orderInfo.getAmount() + "元",
+                orderInfo.getFetchTime(),
+                new DateTime(orderInfo.getQuitTime()).toString("yyyy-MM-dd HH:mm"),
+                (String) hospFeignClient.getHospByHoscode4Feign(orderInfo.getHoscode()).getParam().get("fullAddress")
+        };*/
+
+        String[] fetchTimeAgg =  orderInfo.getFetchTime().split(" ");
+        String[] param = {
+                orderInfo.getHosname(),
+                fetchTimeAgg[0],fetchTimeAgg[1],
+                fetchAddress
+        };
+        smsVo.setParam(param);
+        smsVo.setTemplateCode("1780301");
+        /*1780301:
+          您的预约已成功，请按时就诊。医院:{1}，取号日期:{2}，取号时间{3}，取号地址:{4}。
+         */
+
+       /*
+
+        尊敬的{1}您好，您已成功预约{2},挂号费:{3},订单号:{4}
+        请持医保卡或身份证在{5}完成取号。
+        如不能及时就诊,请于就诊前{6}前取消预约。医院地址:{7}。*/
+
+        //发送短信
+        rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_SMS,MqConst.ROUTING_SMS_ITEM,smsVo);
 
         return orderInfo.getId();
     }

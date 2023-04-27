@@ -6,13 +6,16 @@ import com.atguigu.yygh.hosp.service.HospitalService;
 import com.atguigu.yygh.hosp.service.HospitalSetService;
 import com.atguigu.yygh.hosp.service.ScheduleService;
 import com.atguigu.yygh.model.hosp.*;
+import com.atguigu.yygh.redis.constants.MqConst;
 import com.atguigu.yygh.vo.hosp.BookingScheduleRuleVo;
 import com.atguigu.yygh.vo.hosp.ScheduleOrderVo;
 import com.atguigu.yygh.vo.hosp.ScheduleQueryVo;
 import com.atguigu.yygh.vo.order.OrderMqVo;
+import com.atguigu.yygh.vo.sms.SmsVo;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.format.DateTimeFormat;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -36,16 +39,12 @@ import java.util.stream.Collectors;
 public class ScheduleServiceImpl implements ScheduleService {
     @Autowired
     private ScheduleRepository scheduleRepository;
-
     @Autowired
     private MongoTemplate mongoTemplate;
     @Autowired
     private HospitalService hospitalService;
     @Autowired
     private DepartmentRepository departmentRepository;
-
-    @Autowired
-    private HospitalSetService hospitalSetService;
 
     //排班新增或修改
     @Override

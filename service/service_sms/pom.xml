@@ -24,5 +24,12 @@
             <artifactId>tencentcloud-sdk-java-sms</artifactId>
             <version>3.1.740</version>
         </dependency>
+
+<!--        rabbitmq自定义工具类-->
+        <dependency>
+            <groupId>com.atguigu</groupId>
+            <artifactId>rabbit_utils</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>
