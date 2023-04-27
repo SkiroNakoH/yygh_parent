@@ -4,13 +4,12 @@ package com.atguigu.yygh.user.controller;
 import com.atguigu.yygh.common.utils.Result;
 import com.atguigu.yygh.model.user.Patient;
 import com.atguigu.yygh.user.service.PatientService;
-import com.atguigu.yygh.user.utils.JwtUtil;
+import com.atguigu.yygh.common.utils.JwtUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**

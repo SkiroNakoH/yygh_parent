@@ -8,13 +8,11 @@ import com.atguigu.yygh.user.service.UserInfoService;
 import com.atguigu.yygh.user.service.WeiXinService;
 import com.atguigu.yygh.user.utils.ConstantPropertiesUtil;
 import com.atguigu.yygh.user.utils.HttpClientUtils;
-import com.atguigu.yygh.user.utils.JwtUtil;
+import com.atguigu.yygh.common.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.http.HttpSession;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;

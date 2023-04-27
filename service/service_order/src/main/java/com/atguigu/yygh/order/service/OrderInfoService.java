@@ -1,7 +1,10 @@
 package com.atguigu.yygh.order.service;
 
 import com.atguigu.yygh.model.order.OrderInfo;
+import com.atguigu.yygh.vo.order.OrderQueryVo;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.Map;
 
 /**
  * <p>
@@ -14,4 +17,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface OrderInfoService extends IService<OrderInfo> {
 
     Long subscribeOrder(String scheduleId,Long patientId);
+
+    Map<String, Object> findPage(Integer page, Integer size, OrderQueryVo orderQueryVo);
 }

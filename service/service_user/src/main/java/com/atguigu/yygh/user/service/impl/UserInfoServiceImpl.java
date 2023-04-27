@@ -6,7 +6,7 @@ import com.atguigu.yygh.enums.AuthStatusEnum;
 import com.atguigu.yygh.model.user.UserInfo;
 import com.atguigu.yygh.user.mapper.UserInfoMapper;
 import com.atguigu.yygh.user.service.UserInfoService;
-import com.atguigu.yygh.user.utils.JwtUtil;
+import com.atguigu.yygh.common.utils.JwtUtil;
 import com.atguigu.yygh.vo.user.LoginVo;
 import com.atguigu.yygh.vo.user.UserAuthVo;
 import com.atguigu.yygh.vo.user.UserInfoQueryVo;

@@ -17,9 +17,13 @@ import com.atguigu.yygh.user.client.PatientFeignClient;
 import com.atguigu.yygh.vo.hosp.ScheduleOrderVo;
 import com.atguigu.yygh.vo.hosp.ScheduleQueryVo;
 import com.atguigu.yygh.vo.order.OrderMqVo;
+import com.atguigu.yygh.vo.order.OrderQueryVo;
 import com.atguigu.yygh.vo.sms.SmsVo;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.BeanUtils;
@@ -27,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -168,10 +173,10 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 (String) hospFeignClient.getHospByHoscode4Feign(orderInfo.getHoscode()).getParam().get("fullAddress")
         };*/
 
-        String[] fetchTimeAgg =  orderInfo.getFetchTime().split(" ");
+        String[] fetchTimeAgg = orderInfo.getFetchTime().split(" ");
         String[] param = {
                 orderInfo.getHosname(),
-                fetchTimeAgg[0],fetchTimeAgg[1],
+                fetchTimeAgg[0], fetchTimeAgg[1],
                 fetchAddress
         };
         smsVo.setParam(param);
@@ -181,14 +186,44 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
          */
 
        /*
-
         尊敬的{1}您好，您已成功预约{2},挂号费:{3},订单号:{4}
         请持医保卡或身份证在{5}完成取号。
         如不能及时就诊,请于就诊前{6}前取消预约。医院地址:{7}。*/
 
-        //发送短信
-        rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_SMS,MqConst.ROUTING_SMS_ITEM,smsVo);
+        //todo:发送短信
+//        rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_SMS,MqConst.ROUTING_SMS_ITEM,smsVo);
 
         return orderInfo.getId();
+    }
+
+    @Override
+    public Map<String, Object> findPage(Integer page, Integer size, OrderQueryVo orderQueryVo) {
+        Long patientId = orderQueryVo.getPatientId();
+        String orderStatus = orderQueryVo.getOrderStatus();
+
+        Page<OrderInfo> infoPage = new Page<>(page, size);
+
+        QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", orderQueryVo.getUserId());
+        queryWrapper.eq(patientId != null, "patient_id", patientId);
+        queryWrapper.eq(!StringUtils.isEmpty(orderStatus), "order_status", orderStatus);
+
+        baseMapper.selectPage(infoPage, queryWrapper);
+
+        List<OrderInfo> list = infoPage.getRecords();
+        list.forEach(this::packageStatus);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("total", infoPage.getTotal());
+        map.put("list", list);
+        return map;
+    }
+
+    //封装状态名
+    private void packageStatus(OrderInfo orderInfo) {
+        Integer orderStatus = orderInfo.getOrderStatus();
+
+        String orderStatusString = OrderStatusEnum.getStatusNameByStatus(orderStatus);
+        orderInfo.getParam().put("orderStatusString", orderStatusString);
     }
 }
