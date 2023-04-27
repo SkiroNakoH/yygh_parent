@@ -19,4 +19,6 @@ public interface OrderInfoService extends IService<OrderInfo> {
     Long subscribeOrder(String scheduleId,Long patientId);
 
     Map<String, Object> findPage(Integer page, Integer size, OrderQueryVo orderQueryVo);
+
+    OrderInfo getDetailById(Long id);
 }

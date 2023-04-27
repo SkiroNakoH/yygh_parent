@@ -4,6 +4,7 @@ package com.atguigu.yygh.order.controller;
 import com.atguigu.yygh.common.utils.JwtUtil;
 import com.atguigu.yygh.common.utils.Result;
 import com.atguigu.yygh.enums.OrderStatusEnum;
+import com.atguigu.yygh.model.order.OrderInfo;
 import com.atguigu.yygh.order.service.OrderInfoService;
 import com.atguigu.yygh.order.service.impl.OrderInfoServiceImpl;
 import com.atguigu.yygh.vo.order.OrderQueryVo;
@@ -56,6 +57,12 @@ public class OrderInfoController {
         //分页查询
         Map<String,Object> map = orderInfoService.findPage(page,size,orderQueryVo);
         return Result.ok().data(map);
+    }
+    @ApiOperation("订单详情")
+    @GetMapping("/getDetailById/{id}")
+    public Result getDetailById(@PathVariable Long id){
+      OrderInfo orderInfo = orderInfoService.getDetailById(id);
+        return Result.ok().data("orderInfo",orderInfo);
     }
 
 }

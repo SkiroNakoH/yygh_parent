@@ -115,7 +115,6 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         String fetchTime = jsonObject.getString("fetchTime");//取号时间
         String fetchAddress = jsonObject.getString("fetchAddress");  //取号地址
 
-        //todo: 记录信息到预约平台订单表order_info
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setUserId(patient.getUserId());
         //雪花算法生成订单交易号
@@ -190,8 +189,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         请持医保卡或身份证在{5}完成取号。
         如不能及时就诊,请于就诊前{6}前取消预约。医院地址:{7}。*/
 
-        //todo:发送短信
-//        rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_SMS,MqConst.ROUTING_SMS_ITEM,smsVo);
+        //发送短信
+        rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_SMS,MqConst.ROUTING_SMS_ITEM,smsVo);
 
         return orderInfo.getId();
     }
@@ -217,6 +216,13 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         map.put("total", infoPage.getTotal());
         map.put("list", list);
         return map;
+    }
+
+    @Override
+    public OrderInfo getDetailById(Long id) {
+        OrderInfo orderInfo = this.getById(id);
+        packageStatus(orderInfo);
+        return orderInfo;
     }
 
     //封装状态名
