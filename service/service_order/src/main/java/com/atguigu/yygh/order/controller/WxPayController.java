@@ -24,4 +24,12 @@ public class WxPayController {
         String codeUrl = wxPayService.getCodeUrl(orderId);
         return Result.ok().data("codeUrl", codeUrl);
     }
+
+    @ApiOperation("查看用户是否支付成功")
+    @GetMapping("/hasPay/{orderId}")
+    public Result hasPay(@PathVariable Long orderId) throws Exception {
+
+        boolean flag = wxPayService.hasPay(orderId);
+        return Result.ok().data("flag",flag);
+    }
 }
