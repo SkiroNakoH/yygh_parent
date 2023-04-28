@@ -148,7 +148,6 @@ public class HttpClient {
         try {
             if (isHttps) {
                 if(isCert) {
-                    //TODO 需要完善
                     FileInputStream inputStream = new FileInputStream(new File(WxPayProperties.CERT));
                     KeyStore keystore = KeyStore.getInstance("PKCS12");
                     char[] partnerId2charArray = certPassword.toCharArray();

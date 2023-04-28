@@ -5,6 +5,7 @@ import com.atguigu.yygh.common.exception.YYGHException;
 import com.atguigu.yygh.common.utils.ResultCode;
 import com.atguigu.yygh.enums.OrderStatusEnum;
 import com.atguigu.yygh.hosp.client.HospFeignClient;
+import com.atguigu.yygh.model.hosp.Hospital;
 import com.atguigu.yygh.model.hosp.HospitalSet;
 import com.atguigu.yygh.model.hosp.Schedule;
 import com.atguigu.yygh.model.order.OrderInfo;
@@ -179,7 +180,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
                 fetchAddress
         };
         smsVo.setParam(param);
-        smsVo.setTemplateCode("1780301");
+        smsVo.setTemplateCode("1782355");
         /*1780301:
           您的预约已成功，请按时就诊。医院:{1}，取号日期:{2}，取号时间{3}，取号地址:{4}。
          */
@@ -223,6 +224,43 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         OrderInfo orderInfo = this.getById(id);
         packageStatus(orderInfo);
         return orderInfo;
+    }
+
+    //支付成功，通知医院
+    @Override
+    public void paySuccess2Hosp(String hoscode, String hosRecordId) {
+        //获取医院设置信息，拿到apiUrl和密钥
+        HospitalSet hospitalSet = hospFeignClient.getByHosCode(hoscode);
+
+        //封装数据
+        Map<String, Object> paramMap = new HashMap<>();
+
+        //排班相关
+        paramMap.put("hoscode",hoscode);
+        paramMap.put("hosRecordId", hosRecordId);
+        //时间戳
+        paramMap.put("timestamp", HttpRequestHelper.getTimestamp());
+
+        //验签参数
+        String signKey = HttpRequestHelper.getSign(paramMap, hospitalSet.getSignKey());
+        paramMap.put("sign", signKey);
+
+        //发送请求
+        JSONObject respone = HttpRequestHelper.sendRequest(paramMap, hospitalSet.getApiUrl() + "/order/updatePayStatus");
+
+        if (null == respone || 200 != respone.getIntValue("code")) {
+            throw new YYGHException(ResultCode.ERROR, "更改医院支付信息失败: "+respone.getString("message"));
+        }
+    }
+
+    //更新订单状态
+    @Override
+    public void updateOrderStatus(Long orderId, Integer status) {
+        OrderInfo orderInfo = new OrderInfo();
+        orderInfo.setId(orderId);
+        orderInfo.setOrderStatus(status);
+
+        baseMapper.updateById(orderInfo);
     }
 
     //封装状态名

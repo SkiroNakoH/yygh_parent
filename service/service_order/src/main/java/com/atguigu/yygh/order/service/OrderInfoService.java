@@ -21,4 +21,8 @@ public interface OrderInfoService extends IService<OrderInfo> {
     Map<String, Object> findPage(Integer page, Integer size, OrderQueryVo orderQueryVo);
 
     OrderInfo getDetailById(Long id);
+
+    void paySuccess2Hosp(String hoscode, String hosRecordId);
+
+    void updateOrderStatus(Long orderId, Integer status);
 }

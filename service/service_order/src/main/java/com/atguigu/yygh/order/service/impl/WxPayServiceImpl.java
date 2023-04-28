@@ -2,9 +2,11 @@ package com.atguigu.yygh.order.service.impl;
 
 import com.atguigu.yygh.common.exception.YYGHException;
 import com.atguigu.yygh.common.utils.ResultCode;
+import com.atguigu.yygh.enums.OrderStatusEnum;
 import com.atguigu.yygh.model.order.OrderInfo;
 import com.atguigu.yygh.order.properties.WxPayProperties;
 import com.atguigu.yygh.order.service.OrderInfoService;
+import com.atguigu.yygh.order.service.PaymentInfoService;
 import com.atguigu.yygh.order.service.WxPayService;
 import com.atguigu.yygh.order.utils.HttpClient;
 import com.github.wxpay.sdk.WXPayUtil;
@@ -22,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 public class WxPayServiceImpl implements WxPayService {
     @Autowired
     private OrderInfoService orderInfoService;
+    @Autowired
+    private PaymentInfoService paymentInfoService;
     @Autowired
     private RedisTemplate redisTemplate;
 
@@ -81,6 +85,8 @@ public class WxPayServiceImpl implements WxPayService {
         String codeUrl = resultMap.get("code_url");
         //存入redis，2小时有效
         redisTemplate.opsForValue().set(orderId, codeUrl, 2, TimeUnit.HOURS);
+
+        //todo: 生成payment支付相关信息
         return codeUrl;
     }
 
@@ -115,9 +121,21 @@ public class WxPayServiceImpl implements WxPayService {
             throw new YYGHException(ResultCode.ERROR, "获取付款码错误：" + resultMap.get("err_code_des"));
 
         //判断支付状态--> SUCCESS--支付成功
-        if ("SUCCESS".equals(resultMap.get("trade_state")))
-            return true;
+        if (!"SUCCESS".equals(resultMap.get("trade_state")))
+            return false;
 
-        return false;
+        //支付成功，修改订单状态
+        //1.通知医院系统该订单状态
+        String hoscode = orderInfo.getHoscode();
+        String hosRecordId = orderInfo.getHosRecordId();
+        orderInfoService.paySuccess2Hosp(hoscode, hosRecordId);
+
+        //2。更新订单表   >>>>>>  order_info
+        orderInfoService.updateOrderStatus(orderId, OrderStatusEnum.PAID.getStatus());
+
+        //3.生成支付信息   >>>>>>  payment_info
+        paymentInfoService.add(orderInfo,resultMap);
+
+        return true;
     }
 }
