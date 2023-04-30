@@ -31,9 +31,7 @@ public class WxPayController {
     @ApiOperation("查看用户是否支付成功同时修改订单状态")
     @GetMapping("/hasPay/{orderId}")
     public Result hasPay(@PathVariable Long orderId) throws Exception {
-
         boolean flag = wxPayService.hasPay(orderId);
-
         return Result.ok().data("flag", flag);
     }
 }
