@@ -40,4 +40,4 @@ weixin:
     #回调地址
     notifyurl: http://guli.shop/api/order/weixinPay/weixinNotify
     #证书
-    cert: todo
+    cert: D:/apiclient_cert.p12

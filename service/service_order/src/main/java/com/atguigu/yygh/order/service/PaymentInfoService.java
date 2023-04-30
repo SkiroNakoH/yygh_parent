@@ -8,4 +8,6 @@ import java.util.Map;
 
 public interface PaymentInfoService extends IService<PaymentInfo> {
     void add(OrderInfo orderInfo, Map<String, String> resultMap);
+
+    void updateStatus(OrderInfo orderInfo, Integer status);
 }

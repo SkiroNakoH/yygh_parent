@@ -3,10 +3,14 @@ package com.atguigu.yygh.order.service.impl;
 import com.atguigu.yygh.common.exception.YYGHException;
 import com.atguigu.yygh.common.utils.ResultCode;
 import com.atguigu.yygh.enums.OrderStatusEnum;
+import com.atguigu.yygh.enums.PaymentStatusEnum;
 import com.atguigu.yygh.model.order.OrderInfo;
+import com.atguigu.yygh.model.order.PaymentInfo;
+import com.atguigu.yygh.model.order.RefundInfo;
 import com.atguigu.yygh.order.properties.WxPayProperties;
 import com.atguigu.yygh.order.service.OrderInfoService;
 import com.atguigu.yygh.order.service.PaymentInfoService;
+import com.atguigu.yygh.order.service.RefundInfoService;
 import com.atguigu.yygh.order.service.WxPayService;
 import com.atguigu.yygh.order.utils.HttpClient;
 import com.github.wxpay.sdk.WXPayUtil;
@@ -26,6 +30,8 @@ public class WxPayServiceImpl implements WxPayService {
     private OrderInfoService orderInfoService;
     @Autowired
     private PaymentInfoService paymentInfoService;
+    @Autowired
+    private RefundInfoService refundInfoService;
     @Autowired
     private RedisTemplate redisTemplate;
 
@@ -137,5 +143,47 @@ public class WxPayServiceImpl implements WxPayService {
         paymentInfoService.add(orderInfo,resultMap);
 
         return true;
+    }
+
+    //微信退款
+    @Override
+    public void refund(OrderInfo orderInfo) throws Exception {
+        //1.微信退款
+        //发送给 微信支付系统的统一下单接口 的参数>>>>>>>>>>>>>>>>>>>>>
+        Map<String, String> paramMap = new HashMap<>();
+        paramMap.put("appid", WxPayProperties.APPID); //公众账号ID
+        paramMap.put("mch_id", WxPayProperties.PARTNER); //商户号
+        paramMap.put("nonce_str", WXPayUtil.generateNonceStr()); //随机字符串--微信工具类提供
+        paramMap.put("out_trade_no", orderInfo.getOutTradeNo()); //商户订单号
+        paramMap.put("out_refund_no",orderInfo.getOutTradeNo());//订单退款号
+        paramMap.put("total_fee","1");//订单金额
+        paramMap.put("refund_fee","1");//退款金额
+
+        //sign
+        String generateSignedXml = WXPayUtil.generateSignedXml(paramMap, WxPayProperties.PARTNERKEY);
+
+        HttpClient httpClient = new HttpClient("https://api.mch.weixin.qq.com/secapi/pay/refund");
+        httpClient.setHttps(true);
+        httpClient.setXmlParam(generateSignedXml);
+        //使用证书
+        httpClient.setCert(true);
+        //设置证书密码
+        httpClient.setCertPassword(WxPayProperties.PARTNER);
+        //post方法有使用证书地址
+        // FileInputStream inputStream = new FileInputStream(new File(WxPayProperties.CERT));
+        httpClient.post();
+
+        //获取微信平台返回信息
+        String content = httpClient.getContent();
+        Map<String, String> resultMap = WXPayUtil.xmlToMap(content);
+
+        //退款失败
+        if(!resultMap.get("return_code").equals("SUCCESS"))
+            throw new YYGHException(ResultCode.ERROR,resultMap.get("return_msg"));
+
+        //2.更新支付信息 payment_info
+        paymentInfoService.updateStatus(orderInfo, PaymentStatusEnum.REFUND.getStatus());
+        //3.生成退款信息 refund_info
+        refundInfoService.createRefund(orderInfo,resultMap);
     }
 }

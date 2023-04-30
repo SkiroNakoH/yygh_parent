@@ -6,6 +6,7 @@ import com.atguigu.yygh.model.order.OrderInfo;
 import com.atguigu.yygh.model.order.PaymentInfo;
 import com.atguigu.yygh.order.mapper.PaymentInfoMapper;
 import com.atguigu.yygh.order.service.PaymentInfoService;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
@@ -38,5 +39,15 @@ public class PaymentInfoServiceImpl extends ServiceImpl<PaymentInfoMapper,Paymen
 
         //新增支付订单
         baseMapper.insert(paymentInfo);
+    }
+
+    //更新支付状态
+    @Override
+    public void updateStatus(OrderInfo orderInfo, Integer status) {
+        UpdateWrapper<PaymentInfo> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("order_id",orderInfo.getId());
+        updateWrapper.set("payment_status",status);
+
+        baseMapper.update( new PaymentInfo(), updateWrapper);
     }
 }

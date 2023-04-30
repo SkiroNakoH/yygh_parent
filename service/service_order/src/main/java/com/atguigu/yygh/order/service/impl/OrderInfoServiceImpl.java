@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.atguigu.yygh.common.exception.YYGHException;
 import com.atguigu.yygh.common.utils.ResultCode;
 import com.atguigu.yygh.enums.OrderStatusEnum;
+import com.atguigu.yygh.enums.PaymentStatusEnum;
 import com.atguigu.yygh.hosp.client.HospFeignClient;
 import com.atguigu.yygh.model.hosp.Hospital;
 import com.atguigu.yygh.model.hosp.HospitalSet;
@@ -12,6 +13,7 @@ import com.atguigu.yygh.model.order.OrderInfo;
 import com.atguigu.yygh.model.user.Patient;
 import com.atguigu.yygh.order.mapper.OrderInfoMapper;
 import com.atguigu.yygh.order.service.OrderInfoService;
+import com.atguigu.yygh.order.service.WxPayService;
 import com.atguigu.yygh.order.utils.HttpRequestHelper;
 import com.atguigu.yygh.redis.constants.MqConst;
 import com.atguigu.yygh.user.client.PatientFeignClient;
@@ -47,6 +49,8 @@ import java.util.Map;
 @Service
 public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo> implements OrderInfoService {
 
+    @Autowired
+    private WxPayService wxPayService;
     @Autowired
     private HospFeignClient hospFeignClient;
     @Autowired
@@ -192,7 +196,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         如不能及时就诊,请于就诊前{6}前取消预约。医院地址:{7}。*/
 
         //发送短信
-        rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_SMS,MqConst.ROUTING_SMS_ITEM,smsVo);
+        rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_SMS, MqConst.ROUTING_SMS_ITEM, smsVo);
 
         return orderInfo.getId();
     }
@@ -237,7 +241,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         Map<String, Object> paramMap = new HashMap<>();
 
         //排班相关
-        paramMap.put("hoscode",hoscode);
+        paramMap.put("hoscode", hoscode);
         paramMap.put("hosRecordId", hosRecordId);
         //时间戳
         paramMap.put("timestamp", HttpRequestHelper.getTimestamp());
@@ -250,7 +254,7 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         JSONObject respone = HttpRequestHelper.sendRequest(paramMap, hospitalSet.getApiUrl() + "/order/updatePayStatus");
 
         if (null == respone || 200 != respone.getIntValue("code")) {
-            throw new YYGHException(ResultCode.ERROR, "更改医院支付信息失败: "+respone.getString("message"));
+            throw new YYGHException(ResultCode.ERROR, "更改医院支付信息失败: " + respone.getString("message"));
         }
     }
 
@@ -265,21 +269,23 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
     }
 
     @Override
-    public boolean cancelOrder(Long orderId) {
+    public boolean cancelOrder(Long orderId) throws Exception {
         //1.判断订单是否超时
         OrderInfo orderInfo = baseMapper.selectById(orderId);
         DateTime quitTime = new DateTime(orderInfo.getQuitTime());
         //超时
-        if(quitTime.isBeforeNow())
-            throw new YYGHException(ResultCode.ERROR,"无法取消预约，已超过退号时间");
+        if (quitTime.isBeforeNow())
+            throw new YYGHException(ResultCode.ERROR, "无法取消预约，已超过退号时间");
 
         //2.通知医院系统取消预约
         updateCancelStatus(orderInfo);
 
-
         //3.如果已支付，则微信退款
         //3.1.更新支付状态，payment_info表
         //3.2.保存退款信息，refund_info表
+        if (orderInfo.getOrderStatus() == OrderStatusEnum.PAID.getStatus()) {
+            wxPayService.refund(orderInfo);
+        }
 
         //4.更新订单状态>取消预约，order_info表
 
@@ -312,8 +318,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         //发送请求
         JSONObject respone = HttpRequestHelper.sendRequest(paramMap, hospitalSet.getApiUrl() + "/order/updateCancelStatus");
         //医院平台取消预约是白
-        if(respone == null || respone.getInteger("code") != 200)
-            throw new YYGHException(ResultCode.ERROR,"取消预约失败:"+respone.getString("message"));
+        if (respone == null || respone.getInteger("code") != 200)
+            throw new YYGHException(ResultCode.ERROR, "取消预约失败:" + respone.getString("message"));
     }
 
     //封装状态名
