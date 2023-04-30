@@ -274,6 +274,8 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             throw new YYGHException(ResultCode.ERROR,"无法取消预约，已超过退号时间");
 
         //2.通知医院系统取消预约
+        updateCancelStatus(orderInfo);
+
 
         //3.如果已支付，则微信退款
         //3.1.更新支付状态，payment_info表
@@ -287,6 +289,31 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
 
 
         return true;
+    }
+
+    //通知医院平台取消预约
+    private void updateCancelStatus(OrderInfo orderInfo) {
+        //封装数据
+        Map<String, Object> paramMap = new HashMap<>();
+
+        //排班相关
+        paramMap.put("hoscode", orderInfo.getHoscode());
+        paramMap.put("hosRecordId", orderInfo.getHosRecordId());
+
+        //时间戳
+        paramMap.put("timestamp", HttpRequestHelper.getTimestamp());
+
+        HospitalSet hospitalSet = hospFeignClient.getByHosCode(orderInfo.getHoscode());
+
+        //验签参数
+        String signKey = HttpRequestHelper.getSign(paramMap, hospitalSet.getSignKey());
+        paramMap.put("sign", signKey);
+
+        //发送请求
+        JSONObject respone = HttpRequestHelper.sendRequest(paramMap, hospitalSet.getApiUrl() + "/order/updateCancelStatus");
+        //医院平台取消预约是白
+        if(respone == null || respone.getInteger("code") != 200)
+            throw new YYGHException(ResultCode.ERROR,"取消预约失败:"+respone.getString("message"));
     }
 
     //封装状态名
