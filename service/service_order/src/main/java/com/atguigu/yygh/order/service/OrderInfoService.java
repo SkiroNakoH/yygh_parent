@@ -25,4 +25,6 @@ public interface OrderInfoService extends IService<OrderInfo> {
     void paySuccess2Hosp(String hoscode, String hosRecordId);
 
     void updateOrderStatus(Long orderId, Integer status);
+
+    boolean cancelOrder(Long orderId);
 }

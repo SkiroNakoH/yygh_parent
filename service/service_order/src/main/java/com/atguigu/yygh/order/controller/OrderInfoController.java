@@ -65,5 +65,12 @@ public class OrderInfoController {
         return Result.ok().data("orderInfo",orderInfo);
     }
 
+    @ApiOperation("取消订单")
+    @GetMapping("/cancelOrder/{orderId}")
+    public Result cancelOrder(@PathVariable Long orderId){
+        boolean flag = orderInfoService.cancelOrder(orderId);
+        return Result.ok().data("flag",flag);
+    }
+
 }
 

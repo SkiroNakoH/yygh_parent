@@ -31,6 +31,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -261,6 +262,31 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         orderInfo.setOrderStatus(status);
 
         baseMapper.updateById(orderInfo);
+    }
+
+    @Override
+    public boolean cancelOrder(Long orderId) {
+        //1.判断订单是否超时
+        OrderInfo orderInfo = baseMapper.selectById(orderId);
+        DateTime quitTime = new DateTime(orderInfo.getQuitTime());
+        //超时
+        if(quitTime.isBeforeNow())
+            throw new YYGHException(ResultCode.ERROR,"无法取消预约，已超过退号时间");
+
+        //2.通知医院系统取消预约
+
+        //3.如果已支付，则微信退款
+        //3.1.更新支付状态，payment_info表
+        //3.2.保存退款信息，refund_info表
+
+        //4.更新订单状态>取消预约，order_info表
+
+        //5.更新排班>剩余预约数量+1
+
+        //6.发送取消预约的短信给就诊人
+
+
+        return true;
     }
 
     //封装状态名
