@@ -294,10 +294,20 @@ public class ScheduleServiceImpl implements ScheduleService {
         Query query = new Query(Criteria.where("_id").is(orderMqVo.getScheduleId()));
 
         Update update = new Update()
-                .set("reservedNumber",orderMqVo.getReservedNumber())
-                .set("availableNumber",orderMqVo.getAvailableNumber())
-                .set("updateTime",new Date());
-        mongoTemplate.upsert(query, update,Schedule.class);
+                .set("reservedNumber", orderMqVo.getReservedNumber())
+                .set("availableNumber", orderMqVo.getAvailableNumber())
+                .set("updateTime", new Date());
+        mongoTemplate.upsert(query, update, Schedule.class);
+    }
+
+    //取消预约，排班数量+1
+    @Override
+    public void plusSchedule(String scheduleId) {
+        Schedule schedule = scheduleRepository.findById(scheduleId).get();
+        schedule.setAvailableNumber(schedule.getAvailableNumber() + 1);
+
+        //更新
+        scheduleRepository.save(schedule);
     }
 
     //查看预约时间内的排班Vo信息

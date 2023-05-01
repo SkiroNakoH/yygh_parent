@@ -20,7 +20,12 @@ public class ScheduleListener {
             exchange = @Exchange(MqConst.EXCHANGE_DIRECT_ORDER),
             key = MqConst.ROUTING_ORDER
     ))
-    public void updateSchedule(OrderMqVo orderMqVo){
-        scheduleService.updateSubscribe(orderMqVo);
+    public void updateSchedule(OrderMqVo orderMqVo) {
+        if (orderMqVo.getAvailableNumber() != null) {
+            scheduleService.updateSubscribe(orderMqVo);
+        } else {
+            //取消预约，排版+1
+            scheduleService.plusSchedule(orderMqVo.getScheduleId());
+        }
     }
 }

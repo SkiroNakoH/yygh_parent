@@ -29,4 +29,6 @@ public interface ScheduleService {
     ScheduleOrderVo getById4Feign(String id);
 
     void updateSubscribe(OrderMqVo orderMqVo);
+
+    void plusSchedule(String scheduleId);
 }

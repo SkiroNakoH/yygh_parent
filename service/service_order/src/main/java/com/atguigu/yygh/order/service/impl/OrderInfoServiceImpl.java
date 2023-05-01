@@ -288,8 +288,12 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         }
 
         //4.更新订单状态>取消预约，order_info表
+        updateOrderStatus(orderId,OrderStatusEnum.CANCLE.getStatus());  //取消预约
+        //5.更新排班>剩余预约数量+1>>>rabbitMq异步处理
+        OrderMqVo orderMqVo = new OrderMqVo();
+        orderMqVo.setScheduleId(orderInfo.getScheduleId());
+        rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_ORDER,MqConst.ROUTING_ORDER,orderMqVo);
 
-        //5.更新排班>剩余预约数量+1
 
         //6.发送取消预约的短信给就诊人
 
