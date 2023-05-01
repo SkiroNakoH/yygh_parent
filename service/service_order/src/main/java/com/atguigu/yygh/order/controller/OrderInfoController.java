@@ -66,7 +66,7 @@ public class OrderInfoController {
     }
 
     @ApiOperation("取消订单")
-    @GetMapping("/cancelOrder/{orderId}")
+    @PostMapping("/cancelOrder/{orderId}")
     public Result cancelOrder(@PathVariable Long orderId) throws Exception {
         boolean flag = orderInfoService.cancelOrder(orderId);
         return Result.ok().data("flag",flag);

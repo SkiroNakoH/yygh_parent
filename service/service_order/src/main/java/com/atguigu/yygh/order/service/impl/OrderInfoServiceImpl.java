@@ -294,9 +294,14 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         orderMqVo.setScheduleId(orderInfo.getScheduleId());
         rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_ORDER,MqConst.ROUTING_ORDER,orderMqVo);
 
-
         //6.发送取消预约的短信给就诊人
-
+        SmsVo smsVo = new SmsVo();
+        smsVo.setPhone(orderInfo.getPatientPhone());
+        smsVo.setTemplateCode("1782037");
+        //您已成功取消{1}的门诊挂号。
+        smsVo.setParam(new String[]{orderInfo.getHosname()});
+        //异步请求，发送短信
+        rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_SMS,MqConst.ROUTING_SMS_ITEM,smsVo);
 
         return true;
     }
