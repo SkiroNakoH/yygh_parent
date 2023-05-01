@@ -1,0 +1,12 @@
+server:
+  port: 8208 #服务端口
+
+spring:
+  application:
+    name: service-task #服务名
+  profiles:
+    active: dev #环境设置：dev、test、prod
+  cloud:
+    nacos:
+      discovery: #nacos服务地址
+        server-addr: 127.0.0.1:8848

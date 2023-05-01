@@ -306,6 +306,33 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
         return true;
     }
 
+    @Override
+    public void remind() {
+        QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("reserve_date", new DateTime().toString("yyyy-MM-dd"));
+        queryWrapper.eq("order_status", OrderStatusEnum.PAID.getStatus());//已支付
+
+        List<OrderInfo> orderInfoList = baseMapper.selectList(queryWrapper);
+
+        orderInfoList.forEach(orderInfo -> {
+            SmsVo smsVo = new SmsVo();
+            smsVo.setPhone(orderInfo.getPatientPhone());
+            smsVo.setTemplateCode("1782203");
+            /**
+             * 您预约了今日就诊，请准时到达。医院:{1}，取号日期:{2}，取号时间:{3}，取号地址;{4}。
+             */
+            String[] fetchTimeAgg = orderInfo.getFetchTime().split(" ");
+            String[] param = {
+                    orderInfo.getHosname(),
+                    fetchTimeAgg[0], fetchTimeAgg[1],
+                    orderInfo.getFetchAddress()
+            };
+            smsVo.setParam(param);
+            //异步请求，发送短信
+            rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_SMS,MqConst.ROUTING_SMS_ITEM,smsVo);
+        });
+    }
+
     //通知医院平台取消预约
     private void updateCancelStatus(OrderInfo orderInfo) {
         //封装数据

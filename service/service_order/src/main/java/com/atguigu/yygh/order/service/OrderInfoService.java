@@ -27,4 +27,6 @@ public interface OrderInfoService extends IService<OrderInfo> {
     void updateOrderStatus(Long orderId, Integer status);
 
     boolean cancelOrder(Long orderId) throws Exception;
+
+    void remind();
 }
