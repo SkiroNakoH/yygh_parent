@@ -19,6 +19,8 @@ import com.atguigu.yygh.redis.constants.MqConst;
 import com.atguigu.yygh.user.client.PatientFeignClient;
 import com.atguigu.yygh.vo.hosp.ScheduleOrderVo;
 import com.atguigu.yygh.vo.hosp.ScheduleQueryVo;
+import com.atguigu.yygh.vo.order.OrderCountQueryVo;
+import com.atguigu.yygh.vo.order.OrderCountVo;
 import com.atguigu.yygh.vo.order.OrderMqVo;
 import com.atguigu.yygh.vo.order.OrderQueryVo;
 import com.atguigu.yygh.vo.sms.SmsVo;
@@ -37,6 +39,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -331,6 +334,20 @@ public class OrderInfoServiceImpl extends ServiceImpl<OrderInfoMapper, OrderInfo
             //异步请求，发送短信
             rabbitTemplate.convertAndSend(MqConst.EXCHANGE_DIRECT_SMS,MqConst.ROUTING_SMS_ITEM,smsVo);
         });
+    }
+
+    @Override
+    public Map<String, Object> orderCount(OrderCountQueryVo orderCountQueryVo) {
+        List<OrderCountVo> list = baseMapper.orderCount(orderCountQueryVo);
+
+        List<String> dateList = list.stream().map(OrderCountVo::getReserveDate).collect(Collectors.toList());
+        List<Integer> countList = list.stream().map(OrderCountVo::getCount).collect(Collectors.toList());
+
+        //封装数据
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("dateList",dateList);
+        map.put("countList",countList);
+        return map;
     }
 
     //通知医院平台取消预约

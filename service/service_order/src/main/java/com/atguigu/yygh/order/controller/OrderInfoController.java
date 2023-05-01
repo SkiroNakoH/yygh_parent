@@ -7,6 +7,7 @@ import com.atguigu.yygh.enums.OrderStatusEnum;
 import com.atguigu.yygh.model.order.OrderInfo;
 import com.atguigu.yygh.order.service.OrderInfoService;
 import com.atguigu.yygh.order.service.impl.OrderInfoServiceImpl;
+import com.atguigu.yygh.vo.order.OrderCountQueryVo;
 import com.atguigu.yygh.vo.order.OrderQueryVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -72,5 +73,10 @@ public class OrderInfoController {
         return Result.ok().data("flag",flag);
     }
 
+    @ApiOperation("预约统计-远程feign")
+    @PostMapping("/orderCount")
+    public Map<String,Object> orderCount(@RequestBody OrderCountQueryVo orderCountQueryVo){
+        return orderInfoService.orderCount(orderCountQueryVo);
+    }
 }
 

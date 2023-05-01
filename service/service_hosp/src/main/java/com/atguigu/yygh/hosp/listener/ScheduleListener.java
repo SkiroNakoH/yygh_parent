@@ -16,7 +16,7 @@ public class ScheduleListener {
     private ScheduleService scheduleService;
 
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = MqConst.QUEUE_ORDER, durable = "true"),
+            value = @Queue(value = MqConst.QUEUE_ORDER),
             exchange = @Exchange(MqConst.EXCHANGE_DIRECT_ORDER),
             key = MqConst.ROUTING_ORDER
     ))

@@ -1,6 +1,7 @@
 package com.atguigu.yygh.order.service;
 
 import com.atguigu.yygh.model.order.OrderInfo;
+import com.atguigu.yygh.vo.order.OrderCountQueryVo;
 import com.atguigu.yygh.vo.order.OrderQueryVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -29,4 +30,6 @@ public interface OrderInfoService extends IService<OrderInfo> {
     boolean cancelOrder(Long orderId) throws Exception;
 
     void remind();
+
+    Map<String, Object> orderCount(OrderCountQueryVo orderCountQueryVo);
 }

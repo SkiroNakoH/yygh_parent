@@ -92,7 +92,6 @@ public class WxPayServiceImpl implements WxPayService {
         //存入redis，2小时有效
         redisTemplate.opsForValue().set(orderId, codeUrl, 2, TimeUnit.HOURS);
 
-        //todo: 生成payment支付相关信息
         return codeUrl;
     }
 

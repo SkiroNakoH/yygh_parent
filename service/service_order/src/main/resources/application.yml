@@ -41,3 +41,6 @@ weixin:
     notifyurl: http://guli.shop/api/order/weixinPay/weixinNotify
     #证书
     cert: D:/apiclient_cert.p12
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*.xml
